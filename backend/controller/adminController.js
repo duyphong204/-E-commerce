@@ -52,9 +52,7 @@ const adminController = {
       const { name, email, password, role } = req.body;
       const existingUser = await User.findOne({ email });
       if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new User({ name, email, password: hashedPassword, role: role || "customer" });
+      const newUser = new User({ name, email, password, role: role || "customer" });
       await newUser.save();
 
       const { password: _, ...userWithoutPassword } = newUser.toObject();
@@ -74,7 +72,7 @@ const adminController = {
       if (name) user.name = name;
       if (email) user.email = email;
       if (role) user.role = role;
-      if (password) user.password = await bcrypt.hash(password, 10);
+      if (password) user.password = password;
 
       const updatedUser = await user.save();
       const { password: _, ...rest } = updatedUser.toObject();

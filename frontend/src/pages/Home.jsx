@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProductsByFilters, fetchBestSellerProducts } from "../redux/slices/productsSlice";
+import { fetchProductsByFilters, fetchBestSellerProducts, fetchMostLikedProducts } from "../redux/slices/productsSlice";
 import Hero from "../components/Layout/Hero";
 import GenderCollectionSection from "../components/Products/GenderCollectionSection";
 import NewArrivals from "../components/Products/NewArrivals";
@@ -12,7 +12,7 @@ import AIChat from "../components/AIChat";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { products, bestSellerProducts, loading, error } = useSelector((state) => state.products);
+  const { mostLikedProducts, bestSellerProducts, loading, error } = useSelector((state) => state.products);
 
   useEffect(() => {
     dispatch(fetchProductsByFilters({
@@ -21,6 +21,7 @@ const Home = () => {
       limit: 8,
     }));
     dispatch(fetchBestSellerProducts());
+    dispatch(fetchMostLikedProducts());
   }, [dispatch]);
 
   return (
@@ -37,12 +38,12 @@ const Home = () => {
         <ProductGrid products={bestSellerProducts} loading={loading} error={error} />
       </div>
 
-      {/* Top Wears for Men */}
+      {/* Top Product liked */}
       <div className="container mx-auto my-10">
         <h2 className="text-xl lg:text-3xl text-center font-bold mb-6">
-          SẢN PHẨM NỔI BẬT
+          SẢN PHẨM ĐƯỢC YÊU THÍCH NHẤT
         </h2>
-        <ProductGrid products={products} loading={loading} error={error} />
+        <ProductGrid products={mostLikedProducts} loading={loading} error={error} />
       </div>
 
       <FeaturedCollection />

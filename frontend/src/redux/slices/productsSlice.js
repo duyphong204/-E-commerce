@@ -78,6 +78,20 @@ export const fetchBestSellerProducts = createAsyncThunk(
   }
 );
 
+export const fetchMostLikedProducts = createAsyncThunk(
+  "products/fetchMostLiked",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/products/most-liked`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Không thể tải sản phẩm yêu thích"
+      );
+    }
+  }
+);
+
 export const fetchNewArrivalsProducts = createAsyncThunk(
   "products/fetchNewArrivals",
   async (_, { rejectWithValue }) => {
@@ -91,17 +105,19 @@ export const fetchNewArrivalsProducts = createAsyncThunk(
     }
   }
 );
+
 // Slice quản lý state sản phẩm
 const productsSlice = createSlice({
   name: "products",
   initialState: {
     products: [],
-    page:1,
-    totalPages:1,
-    totalItems:0,
+    page: 1,
+    totalPages: 1,
+    totalItems: 0,
     selectedProduct: null,
     similarProducts: [],
     bestSellerProducts: [],
+    mostLikedProducts: [],
     newArrivalsProducts: [],
     loading: false,
     error: null,
@@ -193,6 +209,22 @@ const productsSlice = createSlice({
           : [];
       })
       .addCase(fetchBestSellerProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // --- Fetch Most Liked products ---
+      .addCase(fetchMostLikedProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMostLikedProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.mostLikedProducts = Array.isArray(action.payload)
+          ? action.payload
+          : [];
+      })
+      .addCase(fetchMostLikedProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

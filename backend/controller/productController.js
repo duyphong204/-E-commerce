@@ -14,8 +14,8 @@ const productController = {
         category,
         material,
         brand,
-        limit=12,
-        page=1,
+        limit = 12,
+        page = 1,
       } = req.query;
 
       // Get gender from headers if not in query
@@ -59,31 +59,31 @@ const productController = {
       }
       let sort = {};
       if (sortBy) {
-      switch (sortBy) {
-        case "priceAsc": sort = { price: 1 }; break;
-        case "priceDesc": sort = { price: -1 }; break;
-        case "popularity": sort = { rating: -1 }; break;
-        default: break;
+        switch (sortBy) {
+          case "priceAsc": sort = { price: 1 }; break;
+          case "priceDesc": sort = { price: -1 }; break;
+          case "popularity": sort = { rating: -1 }; break;
+          default: break;
+        }
       }
-    }
       // --- PHÂN TRANG ---
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 12;
-    const skip = (pageNum - 1) * limitNum;
+      const pageNum = parseInt(page) || 1;
+      const limitNum = parseInt(limit) || 12;
+      const skip = (pageNum - 1) * limitNum;
 
-    const totalItems = await Product.countDocuments(query);
-    const totalPages = Math.ceil(totalItems / limitNum);
+      const totalItems = await Product.countDocuments(query);
+      const totalPages = Math.ceil(totalItems / limitNum);
 
-    const products = await Product.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum);
+      const products = await Product.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNum);
       res.status(200).json({
-      products,
-      page: pageNum,
-      totalPages,
-      totalItems,
-    });
+        products,
+        page: pageNum,
+        totalPages,
+        totalItems,
+      });
     } catch (err) {
       console.error("Error:", err);
       res.status(500).json({ message: err.message });
@@ -123,10 +123,62 @@ const productController = {
       res.status(500).send("server error");
     }
   },
+
+  getMostLikedProducts: async (req, res) => {
+    try {
+      const User = require("../models/User");
+
+      // Aggregate để đếm số lần mỗi sản phẩm xuất hiện trong wishlist
+      const mostLiked = await User.aggregate([
+        // Unwind wishlist array để tách từng productId
+        { $unwind: "$wishlist" },
+        // Group theo productId và đếm số lượng
+        {
+          $group: {
+            _id: "$wishlist",
+            likeCount: { $sum: 1 }
+          }
+        },
+        // Sort theo số lượng like giảm dần
+        { $sort: { likeCount: -1 } },
+        // Limit 8 sản phẩm
+        { $limit: 8 },
+        // Lookup để lấy thông tin chi tiết sản phẩm
+        {
+          $lookup: {
+            from: "products", // collection name trong MongoDB
+            localField: "_id",
+            foreignField: "_id",
+            as: "productDetails"
+          }
+        },
+        // Unwind productDetails
+        { $unwind: "$productDetails" },
+        // Project để chọn fields cần thiết
+        {
+          $project: {
+            _id: "$productDetails._id",
+            name: "$productDetails.name",
+            price: "$productDetails.price",
+            discountPrice: "$productDetails.discountPrice",
+            images: "$productDetails.images",
+            rating: "$productDetails.rating",
+            likeCount: 1
+          }
+        }
+      ]);
+
+      res.json(mostLiked);
+    } catch (error) {
+      console.error("Error fetching most liked products:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  },
+
   getBestSeller: async (req, res) => {
     try {
-      const products = await Product.find({ isPublished: true ,soldCount: { $gt: 0 }})
-        .sort({ soldCount: -1 ,createdAt: -1}) // nếu soldCount bằng nhau thì sort theo mới nhất
+      const products = await Product.find({ isPublished: true, soldCount: { $gt: 0 } })
+        .sort({ soldCount: -1, createdAt: -1 }) // nếu soldCount bằng nhau thì sort theo mới nhất
         .limit(8)
         .select("name price images soldCount rating");
       res.json(products);
@@ -134,6 +186,7 @@ const productController = {
       res.status(500).json({ message: "Server error" });
     }
   },
+
   newArrivalsProduct: async (req, res) => {
     try {
       const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(6);
