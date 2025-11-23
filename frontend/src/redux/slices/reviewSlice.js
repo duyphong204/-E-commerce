@@ -1,12 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-// Helper lấy header token
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
 
 // --- Async Thunks ---
 export const fetchReviews = createAsyncThunk(
@@ -29,10 +24,9 @@ export const createReview = createAsyncThunk(
     try {
       const { data } = await axios.post(
         `${API_URL}/api/reviews/${productId}/create`,
-        reviewData,
-        { headers: getAuthHeader() }
+        reviewData
       );
-      return data.review; // backend trả {message, review}, chỉ lấy review
+      return data.review;
     } catch (err) {
       return rejectWithValue({
         message: err.response?.data?.message || "Không thể tạo đánh giá",
@@ -45,12 +39,7 @@ export const deleteReview = createAsyncThunk(
   "reviews/deleteReview",
   async ({ reviewId }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.delete(
-        `${API_URL}/api/reviews/${reviewId}`,
-        {
-          headers: getAuthHeader(),
-        }
-      );
+      const { data } = await axios.delete(`${API_URL}/api/reviews/${reviewId}`);
       return { ...data, _id: reviewId };
     } catch (err) {
       return rejectWithValue({
@@ -65,7 +54,7 @@ const initialState = {
   reviews: [],
   loading: false,
   error: null,
-  avgRating: 0, // thêm field trung bình đánh giá
+  avgRating: 0,
 };
 
 const reviewSlice = createSlice({
@@ -82,7 +71,7 @@ const reviewSlice = createSlice({
       .addCase(fetchReviews.fulfilled, (state, action) => {
         state.loading = false;
         state.reviews = action.payload.reviews;
-        state.avgRating = action.payload.avgRating; // số sao trung bình
+        state.avgRating = action.payload.avgRating;
       })
       .addCase(fetchReviews.rejected, (state, action) => {
         state.loading = false;

@@ -1,11 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
 
 // --- Async Thunks ---
 
@@ -13,16 +9,8 @@ const getAuthHeader = () => ({
 export const fetchCoupons = createAsyncThunk(
   "coupon/fetchCoupons",
   async ({ page = 1 }, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
-      const { data } = await axios.get(
-        `${API_URL}/api/admin/coupons?page=${page}`,
-        {
-          headers: getAuthHeader(),
-        }
-      );
+      const { data } = await axios.get(`${API_URL}/api/admin/coupons?page=${page}`);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -36,13 +24,9 @@ export const fetchCoupons = createAsyncThunk(
 export const searchCoupon = createAsyncThunk(
   "coupon/searchCoupon",
   async ({ term, page = 1 }, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/admin/coupons/search?term=${term}&page=${page}`,
-        { headers: getAuthHeader() }
+        `${API_URL}/api/admin/coupons/search?term=${term}&page=${page}`
       );
       return data;
     } catch (err) {
@@ -57,16 +41,10 @@ export const searchCoupon = createAsyncThunk(
 export const addCoupon = createAsyncThunk(
   "coupon/addCoupon",
   async (couponData, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
       const { data } = await axios.post(
         `${API_URL}/api/admin/coupons`,
-        couponData,
-        {
-          headers: getAuthHeader(),
-        }
+        couponData
       );
       return data;
     } catch (err) {
@@ -81,16 +59,10 @@ export const addCoupon = createAsyncThunk(
 export const updateCoupon = createAsyncThunk(
   "coupon/updateCoupon",
   async ({ id, couponData }, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
       const { data } = await axios.put(
         `${API_URL}/api/admin/coupons/${id}`,
-        couponData,
-        {
-          headers: getAuthHeader(),
-        }
+        couponData
       );
       return data;
     } catch (err) {
@@ -105,14 +77,10 @@ export const updateCoupon = createAsyncThunk(
 export const toggleCouponStatus = createAsyncThunk(
   "coupon/toggleCouponStatus",
   async ({ id, isActive }, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
       const { data } = await axios.patch(
         `${API_URL}/api/admin/coupons/${id}/toggle`,
-        { isActive },
-        { headers: getAuthHeader() }
+        { isActive }
       );
       return data;
     } catch (err) {
@@ -127,13 +95,8 @@ export const toggleCouponStatus = createAsyncThunk(
 export const deleteCoupon = createAsyncThunk(
   "coupon/deleteCoupon",
   async (id, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
-      await axios.delete(`${API_URL}/api/admin/coupons/${id}`, {
-        headers: getAuthHeader(),
-      });
+      await axios.delete(`${API_URL}/api/admin/coupons/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue(

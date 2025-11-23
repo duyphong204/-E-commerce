@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 // --- Helper để load/save cart từ localStorage ---
 const loadCartFromStorage = () => {
@@ -83,19 +83,14 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
-// Merge guest cart vào user cart
+// Merge guest cart vào user cart (token tự động attach bởi interceptor)
 export const mergeCart = createAsyncThunk(
   "cart/mergeCart",
   async ({ guestId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/cart/merge`,
-        { guestId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-          },
-        }
+        { guestId }
       );
       return response.data;
     } catch (err) {

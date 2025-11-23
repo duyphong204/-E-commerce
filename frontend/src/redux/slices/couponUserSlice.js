@@ -1,11 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
 
 // --- Validate mã giảm giá ---
 export const validateCoupon = createAsyncThunk(
@@ -14,8 +10,7 @@ export const validateCoupon = createAsyncThunk(
     try {
       const { data } = await axios.post(
         `${API_URL}/api/coupons/validate`,
-        { code, userId, totalPrice },
-        { headers: getAuthHeader() }
+        { code, userId, totalPrice }
       );
       return data; // { couponId, code, discountAmount, message }
     } catch (err) {

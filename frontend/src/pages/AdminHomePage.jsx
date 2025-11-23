@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../utils/axiosConfig";
 import DashboardStats from "../components/Admin/Dashboard/DashboardStats";
 import SalesChart from "../components/Admin/Dashboard/SalesChart";
 import TopProducts from "../components/Admin/Dashboard/TopProducts";
@@ -15,19 +15,8 @@ const AdminHomePage = () => {
         const fetchStats = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem("userToken");
-                if (!token) {
-                    setError("Không tìm thấy token xác thực.");
-                    setLoading(false);
-                    return;
-                }
                 const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/api/admin/stats?timeRange=${timeRange}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
+                    `${import.meta.env.VITE_API_URL}/api/admin/stats?timeRange=${timeRange}`
                 );
                 setStats(response.data);
             } catch (err) {

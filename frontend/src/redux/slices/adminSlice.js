@@ -1,19 +1,14 @@
-// redux/slices/adminSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
 
 export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/admin/users?page=${page}&limit=${limit}`,
-        { headers: getAuthHeader() }
+        `${API_URL}/api/admin/users?page=${page}&limit=${limit}`
       );
       return data;
     } catch (err) {
@@ -29,8 +24,7 @@ export const searchUser = createAsyncThunk(
   async ({ term, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/admin/users/search?term=${term}&page=${page}&limit=${limit}`,
-        { headers: getAuthHeader() }
+        `${API_URL}/api/admin/users/search?term=${term}&page=${page}&limit=${limit}`
       );
       return data;
     } catch (err) {
@@ -45,11 +39,7 @@ export const addUser = createAsyncThunk(
   "admin/addUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(
-        `${API_URL}/api/admin/users`,
-        userData,
-        { headers: getAuthHeader() }
-      );
+      const { data } = await axios.post(`${API_URL}/api/admin/users`, userData);
       return data.newUser;
     } catch (err) {
       return rejectWithValue({
@@ -63,11 +53,11 @@ export const updateUser = createAsyncThunk(
   "admin/updateUser",
   async ({ id, name, email, role }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(
-        `${API_URL}/api/admin/users/${id}`,
-        { name, email, role },
-        { headers: getAuthHeader() }
-      );
+      const { data } = await axios.put(`${API_URL}/api/admin/users/${id}`, {
+        name,
+        email,
+        role,
+      });
       return data;
     } catch (err) {
       return rejectWithValue({
@@ -81,9 +71,7 @@ export const deleteUser = createAsyncThunk(
   "admin/deleteUser",
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/api/admin/users/${id}`, {
-        headers: getAuthHeader(),
-      });
+      await axios.delete(`${API_URL}/api/admin/users/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue({
@@ -121,7 +109,6 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message;
       })
-
       .addCase(searchUser.pending, (state) => {
         state.loading = true;
       })
@@ -136,17 +123,14 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message;
       })
-
       .addCase(addUser.fulfilled, (state, action) => {
         state.users.unshift(action.payload);
         state.totalItems += 1;
       })
-
       .addCase(updateUser.fulfilled, (state, action) => {
         const idx = state.users.findIndex((u) => u._id === action.payload._id);
         if (idx !== -1) state.users[idx] = action.payload;
       })
-
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((u) => u._id !== action.payload);
         state.totalItems -= 1;

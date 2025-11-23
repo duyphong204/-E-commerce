@@ -20,65 +20,63 @@ import ProductManagement from './components/Admin/Product/ProductManagement'
 import CouponManagement from "./components/Admin/Coupon/CouponManagement"
 import EditProductPage from './components/Admin/Product/EditProductPage'
 import OrderManagement from './components/Admin/Order/OrderManagement'
-import {Provider} from 'react-redux'
+import { Provider } from 'react-redux'
 import store from './redux/store'
 import ProtectedRoute from './components/Common/ProtectedRoute'
 import About from './pages/About'
 import CreateProductPage from './components/Admin/Product/CreateProductPage'
-import OrderDetail from './components/Admin/Order/OrderDetail'
 
 const App = () => {
   return (
     <Provider store={store}>
-    <BrowserRouter>
-    <ToastContainer
-      position="top-right"
-      autoClose={2000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHov  r
-      theme="light"
-      limit={2}
-    />
-    <Routes>
+      <BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          limit={2}
+        />
+        <Routes>
 
-      <Route path="/" element ={<UserLayout/>}>
-        <Route index element={<Home/>}/>
-        <Route path="login" element={<Login/>}/>
-        <Route path="register" element={<Register/>}/>
-        <Route path="profile" element={<Profile/>}/>
-        <Route path="collections/:collection" element={<CollectionPage/>}/>
-        <Route path="product/:id"element={<ProductDetail/>}/>
-        <Route path="checkout" element={<Checkout/>}/>
-        <Route path="order-confirmation" element={<OrderConfirmationPage/>}/>
-        <Route path="order/:id" element={<OrderDetailsPage/>}/>
-        <Route path="my-orders" element={<MyOrdersPage/>}/>
-        <Route path="about" element={<About/>}/>
-      </Route>
+          <Route path="/" element={<UserLayout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="collections/:collection" element={<CollectionPage />} />
+            <Route path="product/:id" element={<ProductDetail />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="order-confirmation" element={<OrderConfirmationPage />} />
+            <Route path="order/:id" element={<OrderDetailsPage />} />
+            <Route path="my-orders" element={<MyOrdersPage />} />
+            <Route path="about" element={<About />} />
+          </Route>
 
-      <Route path="/admin" 
+          <Route path="/admin"
             element={
-            <ProtectedRoute role="admin">
-              <AdminLayout/>
-            </ProtectedRoute>
+              <ProtectedRoute role="admin">
+                <AdminLayout />
+              </ProtectedRoute>
             }
-        >
-        <Route index element={<AdminHomePage/>}/>
-        <Route path="users" element={<UserManagement/>}/>
-        <Route path="products" element={<ProductManagement/>}/>
-        <Route path="coupon" element={<CouponManagement/>}/>
-        <Route path="products/:id/edit" element={<EditProductPage/>}/>
-        <Route path="products/create" element={<CreateProductPage/>}/>
-        <Route path="orders" element={<OrderManagement/>}/>
-        <Route path="orders/detail" element={<OrderDetail/>} />
-      </Route>
+          >
+            <Route index element={<AdminHomePage />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="products" element={<ProductManagement />} />
+            <Route path="coupon" element={<CouponManagement />} />
+            <Route path="products/:id/edit" element={<EditProductPage />} />
+            <Route path="products/create" element={<CreateProductPage />} />
+            <Route path="orders" element={<OrderManagement />} />
+          </Route>
 
-    </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
     </Provider>
   )
 }

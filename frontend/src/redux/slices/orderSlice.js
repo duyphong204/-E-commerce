@@ -1,12 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-// Helper để lấy header có token
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
 
 // --- Async Thunks ---
 
@@ -14,13 +9,8 @@ const getAuthHeader = () => ({
 export const fetchUserOrders = createAsyncThunk(
   "order/fetchUserOrders",
   async (_, { rejectWithValue }) => {
-    const token = localStorage.getItem("userToken");
-    if (!token) return rejectWithValue({ message: "Bạn chưa đăng nhập" });
-
     try {
-      const { data } = await axios.get(`${API_URL}/api/orders/my-orders`, {
-        headers: getAuthHeader(),
-      });
+      const { data } = await axios.get(`${API_URL}/api/orders/my-orders`);
       return data;
     } catch (err) {
       const message = err.response?.data?.message || "Không thể tải đơn hàng";
@@ -34,9 +24,7 @@ export const fetchOrderDetails = createAsyncThunk(
   "order/fetchOrderDetails",
   async (orderId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}/api/orders/${orderId}`, {
-        headers: getAuthHeader(),
-      });
+      const { data } = await axios.get(`${API_URL}/api/orders/${orderId}`);
       return data;
     } catch (err) {
       const message =

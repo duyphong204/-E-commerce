@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig"; 
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,6 +19,15 @@ const initialState = {
   guestId: initialGuestId,
   loading: false,
   error: null,
+};
+
+// Helper: Clear user data (tránh duplicate code)
+const clearUserData = (state) => {
+  state.user = null;
+  state.guestId = `guest_${new Date().getTime()}`;
+  localStorage.removeItem("userInfo");
+  localStorage.removeItem("userToken");
+  localStorage.setItem("guestId", state.guestId);
 };
 
 // --- Async Thunks ---
@@ -67,18 +76,25 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Logout - gọi backend để xóa httpOnly cookie
+export const logoutUserAsync = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      await axios.post(`${API_URL}/api/users/logout`);
+      return true;
+    } catch (err) {
+      return rejectWithValue({ message: "Logout failed" });
+    }
+  }
+);
+
 // --- Slice ---
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logoutUser: (state) => {
-      state.user = null;
-      state.guestId = `guest_${new Date().getTime()}`;
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("userToken");
-      localStorage.setItem("guestId", state.guestId);
-    },
+    logoutUser: clearUserData,
     generateNewGuestId: (state) => {
       state.guestId = `guest_${new Date().getTime()}`;
       localStorage.setItem("guestId", state.guestId);
@@ -114,6 +130,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Đăng ký thất bại";
       });
+
+    // --- Logout ---
+    builder.addCase(logoutUserAsync.fulfilled, clearUserData);
   },
 });
 

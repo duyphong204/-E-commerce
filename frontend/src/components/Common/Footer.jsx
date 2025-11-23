@@ -5,109 +5,87 @@ import { Link } from "react-router-dom"
 import { FiPhoneCall } from "react-icons/fi"
 
 const Footer = () => {
-  return (
-    <footer className="border-t py-12 border-gray-100">
-        <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-4 lg:px-0">
-            <div>
-                <h3 className="text-lg text-gray-800 mb-4">Bản Tin</h3>
-                <p className="text-gray-500">Hãy là người đầu tiên biết về sản phẩm và ưu đãi mới</p>
-                <p className="font-medium text-sm text-gray-600 mb-6">đăng ký và được giảm giá 10% cho đơn hàng đầu tiên của bạn. </p>
-                {/* Newletter form */}
-                <form className="flex">
-                    <input type="email" placeholder="Enter your email" 
-                    className="p-3 w-full text-sm border-t border-l border-b border-gray-300 rounded-l-md 
-                    focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all" required/>
-                    <button type='submit' 
-                            className="bg-black text-white px-2 py-3 text-sm rounded-r-md hover:bg-gray-800 transition-all">
+    return (
+        <footer className="border-t py-10 border-gray-100">
+            {/* Grid container */}
+            <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-4 lg:px-0">
+
+                {/* Newsletter */}
+                <div>
+                    <h3 className="text-base sm:text-lg text-gray-800 mb-3">Bản Tin</h3>
+                    <p className="text-sm sm:text-sm text-gray-500 leading-relaxed mb-2">
+                        Hãy là người đầu tiên biết về sản phẩm và ưu đãi mới
+                    </p>
+                    <p className="font-medium text-sm sm:text-sm text-gray-600 mb-4 leading-relaxed">
+                        đăng ký và được giảm giá 10% cho đơn hàng đầu tiên của bạn.
+                    </p>
+
+                    {/* Newsletter form */}
+                    <form className="flex">
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            className="p-2 sm:p-3 text-sm w-full border border-gray-300 rounded-l-md 
+              focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
+                            required
+                        />
+                        <button
+                            type="submit"
+                            className="bg-black text-white px-4 py-2 sm:py-3 text-sm rounded-r-md 
+              hover:bg-gray-800 transition-all"
+                        >
                             Subscribe
-                    </button>
-                </form>
-            </div>
-            {/* Shop link */}
-            <div>
-                <h3 className="text-lg text-gray-800 mb-4">Shop</h3>
-                <ul className="space-y-2 text-gray-600">
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                            Men's top wear
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                            Woman's top wear
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                            Men's bottom wear
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                            Woman's bottom wear
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-            {/* support link */}
-            <div>
-                <h3 className="text-lg text-gray-800 mb-4">Support</h3>
-                <ul className="space-y-2 text-gray-600">
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                           Contact Us
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/about" className="hover:text-gray-500 transition-colors">
-                            About Us
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                          FAQs
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="#" className="hover:text-gray-500 transition-colors">
-                            Features 
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-            {/* follow us */}
-            <div>
-                <h3 className="text-lg text-gray-800 mb-4">Follow Us</h3>
-                <div className="flex items-center space-x-4 mb-6">
-                    <a href="https://www.facebook.com/phong.duy.316058?locale=vi_VN" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:text-gray-500">
-                        <TbBrandMeta className="h-5 w-5"/>
-                    </a>
-                    <a href="https://www.facebook.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:text-gray-500">
-                        <IoLogoInstagram className="h-5 w-5"/>
-                    </a>
-                    <a href="https://www.facebook.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:text-gray-500">
-                        <RiTwitterXLine className="h-4 w-4"/>
-                    </a>
+                        </button>
+                    </form>
                 </div>
-                <p className="text-gray-500">Call Us</p>
-                <p><FiPhoneCall className="inline-block mr-2"/> +84 935452263</p>
+
+                {/* Shop */}
+                <div>
+                    <h3 className="text-base sm:text-lg text-gray-800 mb-3">Shop</h3>
+                    <ul className="space-y-1 sm:space-y-2 text-gray-600 text-sm sm:text-sm">
+                        <li><Link to="#" className="hover:text-gray-500">Men's top wear</Link></li>
+                        <li><Link to="#" className="hover:text-gray-500">Woman's top wear</Link></li>
+                        <li><Link to="#" className="hover:text-gray-500">Men's bottom wear</Link></li>
+                        <li><Link to="#" className="hover:text-gray-500">Woman's bottom wear</Link></li>
+                    </ul>
+                </div>
+
+                {/* Support */}
+                <div>
+                    <h3 className="text-base sm:text-lg text-gray-800 mb-3">Support</h3>
+                    <ul className="space-y-1 sm:space-y-2 text-gray-600 text-sm sm:text-sm">
+                        <li><Link to="#" className="hover:text-gray-500">Contact Us</Link></li>
+                        <li><Link to="/about" className="hover:text-gray-500">About Us</Link></li>
+                        <li><Link to="#" className="hover:text-gray-500">FAQs</Link></li>
+                        <li><Link to="#" className="hover:text-gray-500">Features</Link></li>
+                    </ul>
+                </div>
+
+                {/* Follow Us */}
+                <div>
+                    <h3 className="text-base sm:text-lg text-gray-800 mb-3">Follow Us</h3>
+
+                    <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                        <TbBrandMeta className="w-5 h-5 hover:text-gray-500" />
+                        <IoLogoInstagram className="w-5 h-5 hover:text-gray-500" />
+                        <RiTwitterXLine className="w-4 h-4 hover:text-gray-500" />
+                    </div>
+
+                    <p className="text-gray-500 text-sm mb-1">Call Us</p>
+                    <p className="text-sm">
+                        <FiPhoneCall className="inline-block mr-1" /> +84 935452263
+                    </p>
+                </div>
             </div>
-        </div>
-        {/* footer bottom */}
-        <div className="container mx-auto mt-12 px-4 lg:px-0 border-t border-gray-200 pt-6">
-            <p className="text-gray-500 text-sm tracking-tighter text-center"> 2025 - CompileTab. All Rights Reserved. </p>
-        </div>
-    </footer>
-  )
+
+            {/* Footer bottom */}
+            <div className="container mx-auto mt-10 px-4 lg:px-0 border-t border-gray-200 pt-5">
+                <p className="text-gray-500 text-sm tracking-tight text-center">
+                    2025 - CompileTab. All Rights Reserved.
+                </p>
+            </div>
+        </footer>
+    )
 }
 
 export default Footer

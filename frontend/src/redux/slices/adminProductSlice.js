@@ -1,21 +1,14 @@
-// redux/slices/adminProductSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getAuthHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-});
-
-// --- Async Thunks ---
 export const fetchAdminProducts = createAsyncThunk(
   "adminProducts/fetchAdminProducts",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/admin/products?page=${page}&limit=${limit}`,
-        { headers: getAuthHeader() }
+        `${API_URL}/api/admin/products?page=${page}&limit=${limit}`
       );
       return data;
     } catch (err) {
@@ -31,8 +24,7 @@ export const searchAdminProducts = createAsyncThunk(
   async ({ term, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${API_URL}/api/admin/products/search?term=${term}&page=${page}&limit=${limit}`,
-        { headers: getAuthHeader() }
+        `${API_URL}/api/admin/products/search?term=${term}&page=${page}&limit=${limit}`
       );
       return data;
     } catch (err) {
@@ -49,8 +41,7 @@ export const createProduct = createAsyncThunk(
     try {
       const { data } = await axios.post(
         `${API_URL}/api/admin/products`,
-        productData,
-        { headers: getAuthHeader() }
+        productData
       );
       return data;
     } catch (err) {
@@ -67,8 +58,7 @@ export const updateProduct = createAsyncThunk(
     try {
       const { data } = await axios.put(
         `${API_URL}/api/admin/products/${id}`,
-        productData,
-        { headers: getAuthHeader() }
+        productData
       );
       return data;
     } catch (err) {
@@ -83,9 +73,7 @@ export const deleteProduct = createAsyncThunk(
   "adminProducts/deleteProduct",
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/api/admin/products/${id}`, {
-        headers: getAuthHeader(),
-      });
+      await axios.delete(`${API_URL}/api/admin/products/${id}`);
       return id;
     } catch (err) {
       return rejectWithValue({
@@ -95,7 +83,6 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// --- Slice ---
 const adminProductSlice = createSlice({
   name: "adminProducts",
   initialState: {
@@ -109,7 +96,6 @@ const adminProductSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetch
       .addCase(fetchAdminProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -125,8 +111,6 @@ const adminProductSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message;
       })
-
-      // search
       .addCase(searchAdminProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -142,28 +126,22 @@ const adminProductSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message;
       })
-
-      // create
       .addCase(createProduct.pending, (state) => {
         state.loading = true;
       })
       .addCase(createProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.products.unshift(action.payload); // thêm lên đầu
+        state.products.unshift(action.payload);
         state.totalItems += 1;
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message;
       })
-
-      // update
       .addCase(updateProduct.fulfilled, (state, action) => {
         const idx = state.products.findIndex((p) => p._id === action.payload._id);
         if (idx !== -1) state.products[idx] = action.payload;
       })
-
-      // delete
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.products = state.products.filter((p) => p._id !== action.payload);
         state.totalItems -= 1;

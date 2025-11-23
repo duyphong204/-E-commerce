@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCoupons,
-  addCoupon,
-  deleteCoupon,
-  toggleCouponStatus,
-  searchCoupon,
-  updateCoupon,
-} from "../../../redux/slices/couponAdminSlice";
+import { fetchCoupons, addCoupon, deleteCoupon, toggleCouponStatus, searchCoupon, updateCoupon, } from "../../../redux/slices/couponAdminSlice";
 import { NotificationService } from "../../../utils/notificationService";
 import SearchBar from "../../Common/SearchBar";
 import Pagination from "../../Common/Pagination";
@@ -28,7 +21,6 @@ const CouponManagement = () => {
     dispatch(fetchCoupons({ page: 1 }));
   }, [dispatch]);
 
-  // Tạo mã giảm giá mới
   const handleCreateCoupon = async (payload) => {
     try {
       await dispatch(addCoupon(payload)).unwrap();
@@ -39,7 +31,6 @@ const CouponManagement = () => {
     }
   };
 
-  // Cập nhật mã giảm giá
   const handleUpdateCoupon = async (id, payload) => {
     try {
       await dispatch(updateCoupon({ id, couponData: payload })).unwrap();
@@ -50,7 +41,6 @@ const CouponManagement = () => {
     }
   };
 
-  // Bật/tắt trạng thái mã
   const handleToggle = async (id, currentStatus) => {
     try {
       await dispatch(
@@ -62,7 +52,6 @@ const CouponManagement = () => {
     }
   };
 
-  // Xóa mã giảm giá
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn chắc chắn muốn xóa mã này?")) return;
     try {
@@ -73,7 +62,6 @@ const CouponManagement = () => {
     }
   };
 
-  // Tìm kiếm mã (debounce 500ms)
   const handleSearch = (term) => {
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {

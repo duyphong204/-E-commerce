@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../utils/axiosConfig";
 
 /* 1. Tạo Checkout */
 export const createCheckout = createAsyncThunk(
@@ -8,8 +8,7 @@ export const createCheckout = createAsyncThunk(
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/checkout`,
-        checkoutData,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` } }
+        checkoutData
       );
       return response.data;
     } catch (err) {
@@ -25,8 +24,7 @@ export const markCheckoutAsPaid = createAsyncThunk(
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/checkout/${checkoutId}/pay`,
-        { paymentStatus: "Paid", paymentDetails },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` } }
+        { paymentStatus: "Paid", paymentDetails }
       );
       return response.data;
     } catch (err) {
@@ -42,8 +40,7 @@ export const finalizeCheckout = createAsyncThunk(
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/checkout/${checkoutId}/finalize`,
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` } }
+        {}
       );
       return response.data;
     } catch (err) {

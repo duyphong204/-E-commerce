@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { fetchAllOrders, updateOrderStatus, searchOrder } from "../../../redux/slices/adminOrderSlice";
 import { NotificationService } from "../../../utils/notificationService";
 import { BsClockFill, BsTruck } from "react-icons/bs";
 import SearchBar from "../../Common/SearchBar";
 import Pagination from "../../Common/Pagination";
 import Loading from "../../Common/Loading";
+import OrderDetailModal from "./OrderDetailModal";
 
 const OrderManagement = () => {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ const OrderManagement = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTimer, setSearchTimer] = useState(null);
+  const [modalState, setModalState] = useState({ isOpen: false, orderId: null });
 
   // kiểm tra quyền admin và fetch orders
   useEffect(() => {
@@ -139,12 +141,12 @@ const OrderManagement = () => {
                   <td className="p-4 flex items-center gap-2">
                     <span
                       className={`px-2 h-6 flex items-center justify-center rounded-full text-white text-sm ${order.status === "Processing"
-                          ? "bg-yellow-500"
-                          : order.status === "Shipped"
-                            ? "bg-blue-500"
-                            : order.status === "Delivered"
-                              ? "bg-green-500"
-                              : "bg-red-500"
+                        ? "bg-yellow-500"
+                        : order.status === "Shipped"
+                          ? "bg-blue-500"
+                          : order.status === "Delivered"
+                            ? "bg-green-500"
+                            : "bg-red-500"
                         }`}
                     >
                       {order.status}
@@ -166,8 +168,8 @@ const OrderManagement = () => {
                       disabled={order.status === "Delivered"}
                       onClick={() => handleStatusChange(order._id, "Delivered")}
                       className={`px-4 py-2 rounded-2xl text-white whitespace-nowrap ${order.status === "Delivered"
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-green-500 hover:bg-green-600"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-500 hover:bg-green-600"
                         }`}
                     >
                       Đã giao
@@ -175,12 +177,12 @@ const OrderManagement = () => {
                   </td>
 
                   <td>
-                    <Link
-                      to={`/admin/orders/${order._id}`}
+                    <button
+                      onClick={() => setModalState({ isOpen: true, orderId: order._id })}
                       className="mr-4 px-4 py-2 bg-yellow-400 hover:bg-yellow-600 rounded-2xl text-white whitespace-nowrap"
                     >
                       Chi tiết
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))
@@ -197,6 +199,13 @@ const OrderManagement = () => {
 
       {/* Phân trang */}
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
+
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, orderId: null })}
+        orderId={modalState.orderId}
+      />
     </div>
   );
 };
