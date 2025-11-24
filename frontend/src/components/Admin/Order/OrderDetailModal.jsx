@@ -230,10 +230,10 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }) => {
                                                     </td>
                                                     <td className="px-4 py-3 text-sm">{item.quantity}</td>
                                                     <td className="px-4 py-3 text-sm">
-                                                        ${item.price.toFixed(2)}
+                                                        ${(item.price ?? 0).toFixed(2)}
                                                     </td>
                                                     <td className="px-4 py-3 text-sm font-medium">
-                                                        ${(item.price * item.quantity).toFixed(2)}
+                                                        ${((item.price ?? 0) * (item.quantity ?? 0)).toFixed(2)}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -251,21 +251,21 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }) => {
                                     <div className="flex justify-between">
                                         <span>Tạm tính:</span>
                                         <span className="font-medium">
-                                            ${order.subtotal.toFixed(2)}
+                                            ${(order.subtotal ?? 0).toFixed(2)}
                                         </span>
                                     </div>
-                                    {order.discountAmount > 0 && (
+                                    {(order.discountAmount ?? 0) > 0 && (
                                         <div className="flex justify-between text-red-500">
                                             <span>Giảm giá:</span>
                                             <span className="font-medium">
-                                                -${order.discountAmount.toFixed(2)}
+                                                -${(order.discountAmount ?? 0).toFixed(2)}
                                             </span>
                                         </div>
                                     )}
                                     <div className="flex justify-between text-lg font-bold border-t pt-2">
                                         <span>Tổng cộng:</span>
                                         <span className="text-blue-600">
-                                            ${order.totalPrice.toFixed(2)}
+                                            ${(order.totalPrice ?? 0).toFixed(2)}
                                         </span>
                                     </div>
                                 </div>

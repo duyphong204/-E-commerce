@@ -24,6 +24,9 @@ app.use(cookieParser());
 app.use("/api", routes);
 connectDB();
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`server is running on port http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
