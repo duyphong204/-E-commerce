@@ -1,4 +1,3 @@
-// controllers/adminOrderController.js
 const Order = require("../models/Order");
 const { paginate } = require("../utils/pagination");
 
@@ -10,7 +9,12 @@ const adminOrderController = {
       const { page = 1, limit = 10 } = req.query;
       const data = await paginate(Order, {}, { page, limit, sort: { createdAt: -1 } });
       const results = await Order.populate(data.results, { path: "user", select: "name email" });
-      res.json({ ...data, results });
+
+      const allOrders = await Order.find();
+      const totalSales = allOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      const processingCount = await Order.countDocuments({ status: "Processing" });
+
+      res.json({ ...data, results, totalSales, processingCount });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Server error" });
@@ -19,8 +23,12 @@ const adminOrderController = {
 
   updateStatusOrder: async (req, res) => {
     try {
+      console.log("Update order request:", { id: req.params.id, body: req.body });
+
       const order = await Order.findById(req.params.id).populate("user", "name email");
-      if (!order) return res.status(404).json({ message: "Order not found" });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
 
       const { status } = req.body;
       if (status) {
@@ -31,11 +39,17 @@ const adminOrderController = {
         }
       }
 
-      const updatedOrder = await order.save();
+      // Xác thực các trường bắt buộc tồn tại trước khi lưu
+      if (!order.subtotal || order.subtotal === undefined) {
+        order.subtotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      }
+
+      const updatedOrder = await order.save({ validateBeforeSave: true });
       res.json(updatedOrder);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+      console.error("Update order error:", err.message);
+      console.error("Stack trace:", err.stack);
+      res.status(500).json({ message: "Server error", error: err.message });
     }
   },
 
@@ -77,9 +91,27 @@ const adminOrderController = {
 
       const data = await paginate(Order, query, { page, limit, sort: { createdAt: -1 } });
       const results = await Order.populate(data.results, { path: "user", select: "name email" });
-      res.json({ ...data, results });
+
+      const allOrders = await Order.find();
+      const totalSales = allOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      const processingCount = await Order.countDocuments({ status: "Processing" });
+
+      res.json({ ...data, results, totalSales, processingCount });
     } catch (error) {
       console.error("searchOrders error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+
+  getOrderById: async (req, res) => {
+    try {
+      const order = await Order.findById(req.params.id).populate("user", "name email");
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      res.json(order);
+    } catch (err) {
+      console.error(err);
       res.status(500).json({ message: "Server error" });
     }
   },

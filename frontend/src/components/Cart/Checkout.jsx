@@ -305,16 +305,16 @@ const Checkout = () => {
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               placeholder="Mã giảm giá"
-              className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
+              className="w-[80%] p-3 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
               disabled={!!checkoutId}
             />
             <button
               type="button"
               onClick={handleApplyCoupon}
               disabled={couponLoading || !!checkoutId}
-              className={`px-6 py-3 rounded-lg font-medium text-white transition-all ${couponLoading || !!checkoutId
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-black hover:bg-gray-800"
+              className={`px-2 py-3 rounded-lg font-medium whitespace-nowrap text-white transition-all ${couponLoading || !!checkoutId
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black hover:bg-gray-800"
                 }`}
             >
               {couponLoading ? "..." : "Áp dụng"}

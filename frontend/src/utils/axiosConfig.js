@@ -65,10 +65,9 @@ axiosInstance.interceptors.response.use(
 
             try {
                 // Gọi API refresh token (refresh token ở cookie, tự động gửi)
-                const { data } = await axios.post(
-                    `${API_URL}/api/users/refresh-token`,
-                    {},
-                    { withCredentials: true }
+                const { data } = await axiosInstance.post(
+                    `/api/users/refresh-token`,
+                    {}
                 );
 
                 const newAccessToken = data.accessToken;

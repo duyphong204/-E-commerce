@@ -15,11 +15,6 @@ const Home = () => {
   const { mostLikedProducts, bestSellerProducts, loading, error } = useSelector((state) => state.products);
 
   useEffect(() => {
-    dispatch(fetchProductsByFilters({
-      gender: "Men",
-      category: "Top Wear",
-      limit: 8,
-    }));
     dispatch(fetchBestSellerProducts());
     dispatch(fetchMostLikedProducts());
   }, [dispatch]);

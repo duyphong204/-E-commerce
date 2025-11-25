@@ -1,4 +1,3 @@
-// src/components/products/ProductOptions.jsx
 import { Heart } from "lucide-react";
 
 const ProductOptions = ({
@@ -23,12 +22,7 @@ const ProductOptions = ({
 
       {/* Giá */}
       <div className="flex items-center gap-3">
-        <p className="text-2xl font-bold text-black">
-          ${product.discountPrice ? product.discountPrice.toLocaleString() : product.price.toLocaleString()}
-        </p>
-        {product.discountPrice && (
-          <p className="text-lg line-through text-gray-500">${product.price.toLocaleString()}</p>
-        )}
+        <p className="text-2xl font-bold text-black">{product.price} $</p>
       </div>
 
       {/* Trạng thái tồn kho */}
@@ -49,8 +43,8 @@ const ProductOptions = ({
       <button
         onClick={handleToggleWishlist}
         className={`flex items-center gap-2 px-5 py-2 rounded-xl border transition-all duration-200
-          ${isInWishlist 
-            ? "bg-red-50 border-red-500 text-red-600" 
+          ${isInWishlist
+            ? "bg-red-50 border-red-500 text-red-600"
             : "border-gray-300 text-gray-700 hover:border-black"
           }`}
       >
@@ -91,8 +85,8 @@ const ProductOptions = ({
               onClick={() => !isOutOfStock && setSelectedSize(size)}
               disabled={isOutOfStock}
               className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-200
-                ${selectedSize === size 
-                  ? "bg-black text-white border-black" 
+                ${selectedSize === size
+                  ? "bg-black text-white border-black"
                   : "bg-white border-gray-300 text-gray-700"
                 }
                 ${isOutOfStock ? "opacity-50 cursor-not-allowed" : "hover:border-black"}
@@ -136,10 +130,9 @@ const ProductOptions = ({
         onClick={handleAddToCart}
         disabled={isOutOfStock || !selectedSize || !selectedColor}
         className={`w-full py-3 rounded-lg font-bold text-white transition-all duration-200
-          ${
-            isOutOfStock
-              ? "bg-gray-400 cursor-not-allowed"
-              : !selectedSize || !selectedColor
+          ${isOutOfStock
+            ? "bg-gray-400 cursor-not-allowed"
+            : !selectedSize || !selectedColor
               ? "bg-gray-500 cursor-not-allowed"
               : "bg-black hover:bg-gray-800 active:scale-95"
           }

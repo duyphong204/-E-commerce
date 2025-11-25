@@ -88,6 +88,10 @@ const adminSlice = createSlice({
     page: 1,
     totalPages: 1,
     totalItems: 0,
+    statistics: {
+      adminCount: 0,
+      customerCount: 0
+    },
     loading: false,
     error: null,
   },
@@ -104,6 +108,7 @@ const adminSlice = createSlice({
         state.page = action.payload.page;
         state.totalPages = action.payload.totalPages;
         state.totalItems = action.payload.totalItems;
+        state.statistics = action.payload.statistics;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
@@ -118,6 +123,7 @@ const adminSlice = createSlice({
         state.page = action.payload.page;
         state.totalPages = action.payload.totalPages;
         state.totalItems = action.payload.totalItems;
+        state.statistics = action.payload.statistics;
       })
       .addCase(searchUser.rejected, (state, action) => {
         state.loading = false;

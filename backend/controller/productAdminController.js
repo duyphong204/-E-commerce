@@ -1,4 +1,3 @@
-// controllers/productAdminController.js
 const Product = require("../models/Product");
 const { paginate } = require("../utils/pagination");
 
@@ -9,7 +8,11 @@ const productAdminController = {
     try {
       const { page = 1, limit = 10 } = req.query;
       const data = await paginate(Product, {}, { page, limit, sort: { createdAt: -1 } });
-      res.json(data);
+
+      const activeCount = await Product.countDocuments({ status: "active" });
+      const lowStockCount = await Product.countDocuments({ countInStock: { $lt: 10 } });
+
+      res.json({ ...data, statistics: { activeCount, lowStockCount } });
     } catch (error) {
       console.error("getAllProducts error:", error);
       res.status(500).json({ message: "Server error" });
@@ -24,10 +27,21 @@ const productAdminController = {
       }
 
       const regex = new RegExp(escapeRegex(term.trim()), "i");
-      const query = { $or: [{ name: regex }, { sku: regex }] };
+      const query = {
+        $or: [
+          { name: regex },
+          { sku: regex },
+          { brand: regex },
+          { category: regex }
+        ]
+      };
 
       const data = await paginate(Product, query, { page, limit, sort: { createdAt: -1 } });
-      res.json(data);
+
+      const activeCount = await Product.countDocuments({ status: "active" });
+      const lowStockCount = await Product.countDocuments({ countInStock: { $lt: 10 } });
+
+      res.json({ ...data, statistics: { activeCount, lowStockCount } });
     } catch (error) {
       console.error("searchProducts error:", error);
       res.status(500).json({ message: "Server error" });

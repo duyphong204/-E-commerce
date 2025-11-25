@@ -18,7 +18,7 @@ const productController = {
         page = 1,
       } = req.query;
 
-      // Get gender from headers if not in query
+      // 
       const gender = req.query.gender || req.headers.gender;
 
       let query = {};
@@ -113,7 +113,7 @@ const productController = {
       }
       // product similar
       const similarProduct = await Product.find({
-        _id: { $ne: id }, // exclude the current product id
+        _id: { $ne: id }, // loại trừ ID sản phẩm hiện tại
         gender: product.gender,
         category: product.category,
       }).limit(4);

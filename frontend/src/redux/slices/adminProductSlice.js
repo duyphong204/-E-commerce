@@ -90,6 +90,7 @@ const adminProductSlice = createSlice({
     page: 1,
     totalPages: 1,
     totalItems: 0,
+    statistics: { activeCount: 0, lowStockCount: 0 },
     loading: false,
     error: null,
   },
@@ -106,6 +107,7 @@ const adminProductSlice = createSlice({
         state.page = action.payload.page;
         state.totalPages = action.payload.totalPages;
         state.totalItems = action.payload.totalItems;
+        state.statistics = action.payload.statistics;
       })
       .addCase(fetchAdminProducts.rejected, (state, action) => {
         state.loading = false;
@@ -121,6 +123,7 @@ const adminProductSlice = createSlice({
         state.page = action.payload.page;
         state.totalPages = action.payload.totalPages;
         state.totalItems = action.payload.totalItems;
+        state.statistics = action.payload.statistics;
       })
       .addCase(searchAdminProducts.rejected, (state, action) => {
         state.loading = false;

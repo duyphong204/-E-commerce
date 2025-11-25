@@ -25,6 +25,7 @@ import store from './redux/store'
 import ProtectedRoute from './components/Common/ProtectedRoute'
 import About from './pages/About'
 import CreateProductPage from './components/Admin/Product/CreateProductPage'
+import BannerManagement from './components/Admin/Banner/BannerManagement'
 
 const App = () => {
   return (
@@ -69,6 +70,7 @@ const App = () => {
             <Route index element={<AdminHomePage />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="products" element={<ProductManagement />} />
+            <Route path="banners" element={<BannerManagement />} />
             <Route path="coupon" element={<CouponManagement />} />
             <Route path="products/:id/edit" element={<EditProductPage />} />
             <Route path="products/create" element={<CreateProductPage />} />

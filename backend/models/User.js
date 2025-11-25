@@ -1,48 +1,54 @@
-const mongoose=require("mongoose")
-const bcrypt=require("bcryptjs")
+const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
 
-const userSchema=new mongoose.Schema(
+const userSchema = new mongoose.Schema(
     {
-        name:{
-            type:String,
-            required:true,
-            trim : true
+        name: {
+            type: String,
+            required: true,
+            trim: true
         },
-        email :{
-            type:String,
-            required:true,
-            unique:true,
-            trim:true,
-            match:[/^\S+@\S+\.\S+$/,"Please enter a valid email address"]
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"]
         },
-        password:{
-            type:String,
-            required:true,
-            minlength:[6,"Password must be at least 6 characters long"]
+        password: {
+            type: String,
+            required: true,
+            minlength: [6, "Password must be at least 6 characters long"]
         },
         // Thêm trường wishlist yêu thích sản phẩm 
         wishlist: [
             {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product",
             },
         ],
-        role : {
-            type:String,
-            enum:["customer","admin"],
-            default:"customer"
+        role: {
+            type: String,
+            enum: ["customer", "admin"],
+            default: "customer"
         }
-    },{timestamps:true}
+    }, { timestamps: true }
 )
+
 // password hash middleware 
-userSchema.pre('save',async function(next){
-    if(!this.isModified('password')) return next()
-    this.password=await bcrypt.hash(this.password,10)
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next()
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
 // compare password
-userSchema.methods.matchPassword=async function(password){
-    return await bcrypt.compare(password,this.password)
+userSchema.methods.matchPassword = async function (password) {
+    return await bcrypt.compare(password, this.password)
 }
-module.exports=mongoose.model("User",userSchema)
+
+
+// Chỉ mục cơ sở dữ liệu để tối ưu hóa tìm kiếm
+userSchema.index({ name: "text", email: "text" });
+
+module.exports = mongoose.model("User", userSchema)

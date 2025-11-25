@@ -1,4 +1,3 @@
-// src/components/Admin/User/UserManagement.jsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +13,7 @@ const UserManagement = () => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  const { users, loading, error, page, totalPages, totalItems } = useSelector((state) => state.admin);
+  const { users, loading, error, page, totalPages, totalItems, statistics } = useSelector((state) => state.admin);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTimer, setSearchTimer] = useState(null);
@@ -39,8 +38,7 @@ const UserManagement = () => {
     };
   }, [searchTimer]);
 
-  const adminCount = users.filter((u) => u.role === "admin").length;
-  const customerCount = users.filter((u) => u.role === "customer").length;
+  const { adminCount = 0, customerCount = 0 } = statistics || {};
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -65,7 +63,7 @@ const UserManagement = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này không??")) return;
     try {
       await dispatch(deleteUser(userId)).unwrap();
       NotificationService.success("Xóa user thành công");

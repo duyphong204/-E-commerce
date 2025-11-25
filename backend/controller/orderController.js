@@ -3,7 +3,7 @@ const Order = require("../models/Order");
 const orderController = {
   getMyOrders: async (req, res) => {
     try {
-      // find orders for the authenticated user
+      // Lấy tất cả đơn hàng của người dùng
       const orders = await Order.find({ user: req.user._id }).sort({
         createdAt: -1,
       }); //

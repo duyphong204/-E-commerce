@@ -73,7 +73,7 @@ const orderSchema = new mongoose.Schema(
     },
     subtotal: {
       type: Number,
-      required: true,
+      required: false,
     },
     totalPrice: {
       type: Number,
@@ -106,6 +106,9 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Chỉ mục cơ sở dữ liệu để tối ưu hóa tìm kiếm
+orderSchema.index({ "shippingAddress.address": "text", "shippingAddress.city": "text" });
+orderSchema.index({ status: 1 });
 orderSchema.index({ isPaid: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Order", orderSchema);

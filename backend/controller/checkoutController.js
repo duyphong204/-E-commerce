@@ -30,6 +30,7 @@ const checkoutController = {
       }
 
       const stockErrors = [];
+      // các mục hợp lệ
       const validItems = [];
 
       for (const item of checkoutItems) {
@@ -198,9 +199,8 @@ const checkoutController = {
           return res
             .status(400)
             .json({
-              message: `Sản phẩm ${product?.name || item.productId} (size ${
-                item.size
-              }, màu ${item.color}) đã hết hàng`,
+              message: `Sản phẩm ${product?.name || item.productId} (size ${item.size
+                }, màu ${item.color}) đã hết hàng`,
             });
         }
       }

@@ -125,7 +125,8 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Chỉ mục cho các truy vấn nhanh hơn với lượng hàng tồn kho thấp
+// Chỉ mục cơ sở dữ liệu để tối ưu hóa tìm kiếm
+productSchema.index({ name: "text", sku: "text", brand: "text", category: "text" });
 productSchema.index({ countInStock: 1 });
 
 module.exports = mongoose.model("Product", productSchema);

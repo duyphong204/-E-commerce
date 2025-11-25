@@ -16,6 +16,13 @@ const couponAdminRoutes = require("./couponAdminRoutes");
 const coupon = require('./couponRoutes')
 const aiRoute = require("./aiRoute");
 const adminDashboardRoutes = require("./adminDashboardRoutes");
+const bannerRoutes = require("./bannerRoutes");
+
+router.use("/admin", couponAdminRoutes);
+router.use("/admin", adminRoutes);
+router.use("/admin", productAdminRoutes);
+router.use("/admin", adminOrderRoutes);
+router.use("/admin", adminDashboardRoutes);
 
 router.use("/wishlist", wishlistRoutes);
 router.use("/orders", orderRoutes);
@@ -28,12 +35,6 @@ router.use("/subscriber", subscriberRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/coupons", coupon)
 router.use('/ai', aiRoute);
-
-
-router.use("/admin", couponAdminRoutes);
-router.use("/admin", adminRoutes);
-router.use("/admin", productAdminRoutes);
-router.use("/admin", adminOrderRoutes);
-router.use("/admin", adminDashboardRoutes);
+router.use("/banners", bannerRoutes);
 
 module.exports = router;

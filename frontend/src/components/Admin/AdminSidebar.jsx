@@ -1,5 +1,4 @@
-// src/components/Admin/AdminSidebar.jsx
-import { FaBoxOpen, FaClipboardList, FaSignOutAlt, FaStore, FaUser, FaGift } from "react-icons/fa";
+import { FaBoxOpen, FaClipboardList, FaSignOutAlt, FaUser, FaGift, FaImage } from "react-icons/fa";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../../redux/slices/cartSlice";
@@ -40,6 +39,11 @@ const AdminSidebar = () => {
           <span>Sản phẩm</span>
         </NavLink>
 
+        <NavLink to="/admin/banners" className={linkClass}>
+          <FaImage />
+          <span>Quản lý Banner</span>
+        </NavLink>
+
         <NavLink to="/admin/coupon" className={linkClass}>
           <FaGift />
           <span>Khuyến mãi</span>
@@ -50,10 +54,6 @@ const AdminSidebar = () => {
           <span>Đơn hàng</span>
         </NavLink>
 
-        <NavLink to="/" className={linkClass}>
-          <FaStore />
-          <span>Shop</span>
-        </NavLink>
       </nav>
 
       <div className="mt-6">

@@ -1,5 +1,5 @@
-import  {configureStore} from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice'; 
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './slices/authSlice';
 import productsReducer from './slices/productsSlice';
 import cartReducer from './slices/cartSlice';
 import checkoutReducer from './slices/checkoutSlice';
@@ -12,23 +12,26 @@ import wishlistSlice from './slices/wishlistSlice'
 import couponAdminSlice from './slices/couponAdminSlice'
 import couponUserReducer from "./slices/couponUserSlice";
 import aiReducer from "./slices/aiSlice";
+import bannerReducer from "./slices/bannerSlice";
+
 const store = configureStore({
-    reducer:{
-    auth: authReducer, 
-    products: productsReducer,
-    cart: cartReducer,
-    checkout: checkoutReducer,
-    orders: orderReducer,
-    admin: adminReducer,
-    adminProducts: adminProductReducer,
-    adminOrders : adminOrdersReducer,
-    reviews : reviewReducer,
-    wishList : wishlistSlice,
-    coupon : couponAdminSlice,
-    couponUser: couponUserReducer,
-    ai: aiReducer,
+    reducer: {
+        auth: authReducer,
+        products: productsReducer,
+        cart: cartReducer,
+        checkout: checkoutReducer,
+        orders: orderReducer,
+        admin: adminReducer,
+        adminProducts: adminProductReducer,
+        adminOrders: adminOrdersReducer,
+        reviews: reviewReducer,
+        wishList: wishlistSlice,
+        coupon: couponAdminSlice,
+        couponUser: couponUserReducer,
+        ai: aiReducer,
+        banners: bannerReducer,
     },
-    devTools: true, // bật DevTools
+    devTools: true,
 })
 
 export default store;

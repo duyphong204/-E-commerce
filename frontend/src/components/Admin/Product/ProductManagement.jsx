@@ -10,7 +10,7 @@ import Loading from "../../Common/Loading";
 
 const ProductManagement = () => {
   const dispatch = useDispatch();
-  const { products, loading, error, page, totalPages, totalItems } = useSelector(
+  const { products, loading, error, page, totalPages, totalItems, statistics } = useSelector(
     (state) => state.adminProducts
   );
 
@@ -27,10 +27,7 @@ const ProductManagement = () => {
     };
   }, [searchTimer]);
 
-  const stats = {
-    lowStock: products.filter((p) => p.countInStock < 10).length,
-    active: products.filter((p) => p.status === "active").length,
-  };
+  const { activeCount = 0, lowStockCount = 0 } = statistics || {};
 
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này không?")) return;
@@ -85,7 +82,7 @@ const ProductManagement = () => {
         <div className="p-4 rounded-lg shadow-lg flex items-center justify-between bg-gradient-to-r from-green-100 to-green-200 hover:scale-105 transition-transform">
           <div>
             <h2 className="text-xl font-semibold">Đang bán</h2>
-            <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+            <p className="text-2xl font-bold text-green-600">{activeCount}</p>
           </div>
           <MdCheckCircle className="text-4xl text-green-400" />
         </div>
@@ -93,7 +90,7 @@ const ProductManagement = () => {
         <div className="p-4 rounded-lg shadow-lg flex items-center justify-between bg-gradient-to-r from-red-100 to-red-200 hover:scale-105 transition-transform">
           <div>
             <h2 className="text-xl font-semibold">Gần hết hàng</h2>
-            <p className="text-2xl font-bold text-red-600">{stats.lowStock}</p>
+            <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
           </div>
           <MdWarning className="text-4xl text-red-400" />
         </div>
@@ -154,8 +151,8 @@ const ProductManagement = () => {
                   <td className="p-4">{product.brand}</td>
                   <td
                     className={`p-4 w-20 text-center ${product.countInStock < 10
-                        ? "text-red-500 font-bold"
-                        : "text-green-600 font-bold"
+                      ? "text-red-500 font-bold"
+                      : "text-green-600 font-bold"
                       }`}
                   >
                     {product.countInStock}
