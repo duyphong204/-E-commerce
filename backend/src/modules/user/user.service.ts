@@ -96,19 +96,19 @@ export class UserService {
   async createUser(data: AdminCreateUserInput) {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new BadRequestException("User already exists");
+      throw new BadRequestException("Người dùng đã tồn tại");
     }
 
     const newUser = await this.userRepository.create(data);
     const { password, ...userWithoutPassword } = newUser.toObject();
 
-    return { message: "User created", newUser: userWithoutPassword };
+    return { message: "Tạo người dùng thành công", newUser: userWithoutPassword };
   }
 
   async updateUser(id: string, requesterId: string, data: AdminUpdateUserInput) {
     const user = await this.userRepository.findById(id) as any;
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException("Không tìm thấy người dùng");
     }
 
     // Requester cannot change their own role
@@ -137,7 +137,7 @@ export class UserService {
   async deleteUser(id: string, requesterId: string) {
     const user = await this.userRepository.findById(id) as any;
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException("Không tìm thấy người dùng");
     }
 
     // Cannot delete self
@@ -154,7 +154,7 @@ export class UserService {
     }
 
     await user.deleteOne();
-    return { message: "User deleted" };
+    return { message: "Xóa người dùng thành công" };
   }
 }
 

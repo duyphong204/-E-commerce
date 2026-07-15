@@ -58,7 +58,7 @@ export class UserController {
   refreshToken = catchAsync(async (req: Request, res: Response) => {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
-      throw new UnauthorizedException("No refresh token");
+      throw new UnauthorizedException("Không tìm thấy mã refresh token");
     }
 
     try {
@@ -71,7 +71,7 @@ export class UserController {
       return res.json({ accessToken: newAccessToken });
     } catch (err) {
       res.clearCookie("refreshToken");
-      throw new UnauthorizedException("Invalid refresh token");
+      throw new UnauthorizedException("Mã refresh token không hợp lệ hoặc đã hết hạn");
     }
   });
 

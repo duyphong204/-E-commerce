@@ -12,7 +12,7 @@ export class SubscriberService {
   async subscribe(data: CreateSubscriberInput) {
     const existing = await this.subscriberRepository.findByEmail(data.email);
     if (existing) {
-      throw new BadRequestException("Email already subscribed");
+      throw new BadRequestException("Email này đã được đăng ký nhận bản tin trước đó");
     }
 
     return this.subscriberRepository.create(data.email);

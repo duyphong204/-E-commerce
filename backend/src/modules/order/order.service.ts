@@ -15,7 +15,7 @@ export class OrderService {
   async getOrderById(id: string) {
     const order = await this.orderRepository.findPopulatedById(id);
     if (!order) {
-      throw new NotFoundException("Order not found");
+      throw new NotFoundException("Không tìm thấy đơn hàng");
     }
     return order;
   }
@@ -40,7 +40,7 @@ export class OrderService {
   async updateOrderStatus(id: string, status: string) {
     const order = await this.orderRepository.findById(id);
     if (!order) {
-      throw new NotFoundException("Order not found");
+      throw new NotFoundException("Không tìm thấy đơn hàng");
     }
 
     order.status = status as any;
@@ -60,10 +60,10 @@ export class OrderService {
   async deleteOrder(id: string) {
     const order = await this.orderRepository.findById(id);
     if (!order) {
-      throw new NotFoundException("Order not found");
+      throw new NotFoundException("Không tìm thấy đơn hàng");
     }
     await order.deleteOne();
-    return { message: "Order removed" };
+    return { message: "Xóa đơn hàng thành công" };
   }
 
   async searchOrders(term: string, page: number, limit: number) {

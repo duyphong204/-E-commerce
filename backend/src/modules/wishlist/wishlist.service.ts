@@ -14,7 +14,7 @@ export class WishlistService {
   async getWishlist(userId: string) {
     const user = await this.wishlistRepository.getWishlist(userId);
     if (!user) {
-      throw new NotFoundException("User Not Found !");
+      throw new NotFoundException("Không tìm thấy người dùng");
     }
     return this.formatWishlist(user.wishlist);
   }
@@ -22,12 +22,12 @@ export class WishlistService {
   async addToWishlist(userId: string, productId: string) {
     const product = await this.productRepository.findById(productId);
     if (!product) {
-      throw new NotFoundException("Product Not Found !");
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
 
     const user = await this.wishlistRepository.addToWishlist(userId, productId);
     if (!user) {
-      throw new NotFoundException("User Not Found !");
+      throw new NotFoundException("Không tìm thấy người dùng");
     }
 
     return this.formatWishlist(user.wishlist);
@@ -36,7 +36,7 @@ export class WishlistService {
   async removeFromWishlist(userId: string, productId: string) {
     const user = await this.wishlistRepository.removeFromWishlist(userId, productId);
     if (!user) {
-      throw new NotFoundException("User Not Found !");
+      throw new NotFoundException("Không tìm thấy người dùng");
     }
     return this.formatWishlist(user.wishlist);
   }

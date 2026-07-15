@@ -4,6 +4,8 @@ export interface PaginationOptions {
   page?: number | string;
   limit?: number | string;
   sort?: any;
+  select?: string | Record<string, number | boolean>;
+  populate?: any;
 }
 
 export interface PaginatedResult<T> {
@@ -18,21 +20,27 @@ export const paginate = async <T extends Document>(
   query: any = {},
   options: PaginationOptions = {}
 ): Promise<PaginatedResult<T>> => {
-  let page = parseInt(options.page as string, 10);
-  let limit = parseInt(options.limit as string, 10);
+  let page = Number(options.page) || 1;
+  let limit = Number(options.limit) || 10;
   
-  if (isNaN(page) || page < 1) page = 1;
-  if (isNaN(limit) || limit < 1) limit = 10;
+  if (page < 1) page = 1;
+  if (limit < 1) limit = 10;
 
   const skip = (page - 1) * limit;
   const totalItems = await model.countDocuments(query);
   const totalPages = Math.ceil(totalItems / limit);
 
-  const results = await model
-    .find(query)
-    .sort(options.sort || {})
-    .skip(skip)
-    .limit(limit);
+  let queryBuilder: any = model.find(query).sort(options.sort || {});
+
+  if (options.select) {
+    queryBuilder = queryBuilder.select(options.select);
+  }
+
+  if (options.populate) {
+    queryBuilder = queryBuilder.populate(options.populate);
+  }
+
+  const results = await queryBuilder.skip(skip).limit(limit);
 
   return { results, page, totalPages, totalItems };
 };

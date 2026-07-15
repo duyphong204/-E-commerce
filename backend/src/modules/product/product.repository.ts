@@ -27,24 +27,31 @@ export class ProductRepository {
     return Product.countDocuments(query);
   }
 
-  async findPaginated(query: any, page: number, limit: number, sort: any): Promise<PaginatedResult<any>> {
-    return paginate(Product as any, query, { page, limit, sort });
+  async findPaginated(query: any, page: number, limit: number, sort: any, select?: any): Promise<PaginatedResult<any>> {
+    return paginate(Product as any, query, { page, limit, sort, select });
   }
 
-  async find(query: any = {}, sort: any = {}, limit: number = 0) {
-    let q = Product.find(query).sort(sort);
+  async find(query: any = {}, sort: any = {}, limit: number = 0, select?: any) {
+    let q: any = Product.find(query).sort(sort);
+    if (select) {
+      q = q.select(select);
+    }
     if (limit > 0) {
       q = q.limit(limit);
     }
     return q;
   }
 
-  async findSimilar(id: string, gender: string, category: string, limit: number = 4) {
-    return Product.find({
+  async findSimilar(id: string, gender: string, category: string, limit: number = 4, select?: any) {
+    let q: any = Product.find({
       _id: { $ne: id },
       gender,
       category,
-    }).limit(limit);
+    });
+    if (select) {
+      q = q.select(select);
+    }
+    return q.limit(limit);
   }
 
   async getMostLiked(limit: number = 8) {

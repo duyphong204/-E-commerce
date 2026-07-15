@@ -1,6 +1,7 @@
 import { ProductRepository } from "./product.repository";
 import { CreateProductInput, UpdateProductInput } from "./product.schema";
 import { BadRequestException, NotFoundException } from "../../common/exceptions/HttpException";
+import { clearCachePattern } from "../../common/middlewares/cache.middleware";
 
 export class ProductService {
   private productRepository: ProductRepository;
@@ -76,7 +77,8 @@ export class ProductService {
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 12;
 
-    const data = await this.productRepository.findPaginated(query, pageNum, limitNum, sort);
+    const listSelect = "name price discountPrice images rating colors sizes countInStock brand category gender collections status isPublished soldCount createdAt";
+    const data = await this.productRepository.findPaginated(query, pageNum, limitNum, sort, listSelect);
     return {
       products: data.results,
       page: data.page,
@@ -88,14 +90,15 @@ export class ProductService {
   async getProductById(id: string) {
     const product = await this.productRepository.findById(id);
     if (!product) {
-      throw new NotFoundException("Product not found");
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
     return product;
   }
 
   async getSimilarProducts(id: string) {
     const product = await this.getProductById(id);
-    return this.productRepository.findSimilar(id, product.gender as string, product.category as string, 4);
+    const listSelect = "name price discountPrice images rating colors sizes countInStock brand category gender collections status isPublished soldCount createdAt";
+    return this.productRepository.findSimilar(id, product.gender as string, product.category as string, 4, listSelect);
   }
 
   async getMostLikedProducts() {
@@ -103,15 +106,18 @@ export class ProductService {
   }
 
   async getBestSellers() {
+    const listSelect = "name price discountPrice images rating colors sizes countInStock brand category gender collections status isPublished soldCount createdAt";
     return this.productRepository.find(
       { isPublished: true, soldCount: { $gt: 0 } },
       { soldCount: -1, createdAt: -1 },
-      8
+      8,
+      listSelect
     );
   }
 
   async getNewArrivals() {
-    return this.productRepository.find({}, { createdAt: -1 }, 6);
+    const listSelect = "name price discountPrice images rating colors sizes countInStock brand category gender collections status isPublished soldCount createdAt";
+    return this.productRepository.find({}, { createdAt: -1 }, 6, listSelect);
   }
 
   // Admin Methods
@@ -155,25 +161,29 @@ export class ProductService {
   async createProduct(data: CreateProductInput, userId: string) {
     const existing = await this.productRepository.findBySku(data.sku);
     if (existing) {
-      throw new BadRequestException("Product with this SKU already exists");
+      throw new BadRequestException("Sản phẩm với mã SKU này đã tồn tại");
     }
-    return this.productRepository.create({ ...data, user: userId });
+    const product = await this.productRepository.create({ ...data, user: userId });
+    await clearCachePattern("cache:/api/products*");
+    return product;
   }
 
   async updateProduct(id: string, data: UpdateProductInput) {
     const product = await this.productRepository.update(id, data);
     if (!product) {
-      throw new NotFoundException("Product not found");
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
+    await clearCachePattern("cache:/api/products*");
     return product;
   }
 
   async deleteProduct(id: string) {
     const product = await this.productRepository.findById(id);
     if (!product) {
-      throw new NotFoundException("Product not found");
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
     await this.productRepository.delete(id);
-    return { message: "Product removed" };
+    await clearCachePattern("cache:/api/products*");
+    return { message: "Xóa sản phẩm thành công" };
   }
 }

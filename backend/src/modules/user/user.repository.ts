@@ -15,7 +15,7 @@ export class UserRepository {
   }
 
   async findPaginated(query: any, page: number, limit: number, sort: any): Promise<PaginatedResult<any>> {
-    return paginate(User as any, query, { page, limit, sort });
+    return paginate(User as any, query, { page, limit, sort, select: "-password" });
   }
 
   async countByRole(role: string): Promise<number> {

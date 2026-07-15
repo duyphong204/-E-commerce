@@ -28,7 +28,7 @@ export class ReviewService {
   async createReview(productId: string, userId: string, data: CreateReviewInput) {
     const product = await this.productRepository.findById(productId) as any;
     if (!product) {
-      throw new NotFoundException("Product not found");
+      throw new NotFoundException("Không tìm thấy sản phẩm");
     }
 
     const hasPurchased = await this.reviewRepository.checkUserPurchased(userId, productId);
@@ -69,11 +69,11 @@ export class ReviewService {
   async deleteReview(id: string, userId: string) {
     const review = await this.reviewRepository.findById(id);
     if (!review) {
-      throw new NotFoundException("Review not found");
+      throw new NotFoundException("Không tìm thấy đánh giá");
     }
 
     if (review.user.toString() !== userId.toString()) {
-      throw new UnauthorizedException("Not authorized");
+      throw new UnauthorizedException("Bạn không có quyền thực hiện hành động này");
     }
 
     await review.deleteOne();

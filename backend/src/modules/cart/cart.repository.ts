@@ -16,4 +16,8 @@ export class CartRepository {
   async deleteByGuestId(guestId: string) {
     return Cart.findOneAndDelete({ guestId });
   }
+
+  async updateById(id: string, cartData: any) {
+    return Cart.findByIdAndUpdate(id, cartData, { new: true });
+  }
 }

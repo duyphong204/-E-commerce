@@ -1,6 +1,7 @@
 import { BannerRepository } from "./banner.repository";
 import { CreateBannerInput, UpdateBannerInput } from "./banner.schema";
 import { NotFoundException } from "../../common/exceptions/HttpException";
+import { clearCachePattern } from "../../common/middlewares/cache.middleware";
 
 export class BannerService {
   private bannerRepository: BannerRepository;
@@ -18,10 +19,12 @@ export class BannerService {
   }
 
   async createBanner(data: CreateBannerInput) {
-    return this.bannerRepository.create({
+    const banner = await this.bannerRepository.create({
       ...data,
       altText: data.altText || data.title,
     });
+    await clearCachePattern("cache:/api/banners*");
+    return banner;
   }
 
   async updateBanner(id: string, updates: UpdateBannerInput) {
@@ -29,6 +32,7 @@ export class BannerService {
     if (!banner) {
       throw new NotFoundException("Banner not found");
     }
+    await clearCachePattern("cache:/api/banners*");
     return banner;
   }
 
@@ -37,6 +41,7 @@ export class BannerService {
     if (!banner) {
       throw new NotFoundException("Banner not found");
     }
+    await clearCachePattern("cache:/api/banners*");
     return { message: "Banner deleted successfully" };
   }
 
@@ -48,6 +53,8 @@ export class BannerService {
 
     banner.isActive = !banner.isActive;
     await banner.save();
+    
+    await clearCachePattern("cache:/api/banners*");
 
     return {
       message: `Banner ${banner.isActive ? "activated" : "deactivated"}`,

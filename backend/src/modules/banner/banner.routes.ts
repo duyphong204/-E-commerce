@@ -3,12 +3,13 @@ import { BannerController } from "./banner.controller";
 import { protect, admin } from "../../common/middlewares/auth.middleware";
 import { validateRequest } from "../../common/middlewares/validation.middleware";
 import { createBannerSchema, updateBannerSchema } from "./banner.schema";
+import { cacheMiddleware } from "../../common/middlewares/cache.middleware";
 
 const router = Router();
 const bannerController = new BannerController();
 
 // Public route - User
-router.get("/", bannerController.getActiveBanners);
+router.get("/", cacheMiddleware(3600), bannerController.getActiveBanners);
 
 // Admin routes (Protected)
 router.get("/admin", protect as any, admin as any, bannerController.getAllBannersAdmin);
