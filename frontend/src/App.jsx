@@ -1,31 +1,38 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import UserLayout from './components/Layout/UserLayout'
-import Home from './pages/Home'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Profile from './pages/Profile'
-import CollectionPage from './pages/CollectionPage'
-import ProductDetail from './components/Products/ProductDetail'
-import Checkout from './components/Cart/Checkout'
-import OrderConfirmationPage from './pages/OrderConfirmationPage'
-import OrderDetailsPage from './pages/OrderDetailsPage'
-import MyOrdersPage from './pages/MyOrdersPage'
-import AdminLayout from './components/Admin/AdminLayout'
-import AdminHomePage from './pages/AdminHomePage'
-import UserManagement from './components/Admin/User/UserManagement'
-import ProductManagement from './components/Admin/Product/ProductManagement'
-import CouponManagement from "./components/Admin/Coupon/CouponManagement"
-import EditProductPage from './components/Admin/Product/EditProductPage'
-import OrderManagement from './components/Admin/Order/OrderManagement'
-import { Provider } from 'react-redux'
-import store from './redux/store'
-import ProtectedRoute from './components/Common/ProtectedRoute'
-import About from './pages/About'
-import CreateProductPage from './components/Admin/Product/CreateProductPage'
-import BannerManagement from './components/Admin/Banner/BannerManagement'
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import ProtectedRoute from './components/Common/ProtectedRoute';
+import Loading from './components/Common/Loading';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Static Import (Primary Layout & Entry Page)
+import UserLayout from './components/Layout/UserLayout';
+import Home from './pages/Home';
+
+// Lazy Loaded Pages - User
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CollectionPage = lazy(() => import('./pages/CollectionPage'));
+const ProductDetail = lazy(() => import('./components/Products/ProductDetail'));
+const Checkout = lazy(() => import('./components/Cart/Checkout'));
+const OrderConfirmationPage = lazy(() => import('./pages/OrderConfirmationPage'));
+const OrderDetailsPage = lazy(() => import('./pages/OrderDetailsPage'));
+const MyOrdersPage = lazy(() => import('./pages/MyOrdersPage'));
+const About = lazy(() => import('./pages/About'));
+
+// Lazy Loaded Pages - Admin
+const AdminLayout = lazy(() => import('./components/Admin/AdminLayout'));
+const AdminHomePage = lazy(() => import('./pages/AdminHomePage'));
+const UserManagement = lazy(() => import('./components/Admin/User/UserManagement'));
+const ProductManagement = lazy(() => import('./components/Admin/Product/ProductManagement'));
+const CouponManagement = lazy(() => import('./components/Admin/Coupon/CouponManagement'));
+const EditProductPage = lazy(() => import('./components/Admin/Product/EditProductPage'));
+const CreateProductPage = lazy(() => import('./components/Admin/Product/CreateProductPage'));
+const OrderManagement = lazy(() => import('./components/Admin/Order/OrderManagement'));
+const BannerManagement = lazy(() => import('./components/Admin/Banner/BannerManagement'));
 
 const App = () => {
   return (
@@ -44,43 +51,48 @@ const App = () => {
           theme="light"
           limit={2}
         />
-        <Routes>
+        
+        {/* Suspense wrapper with custom loading fallback */}
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            {/* User Routes */}
+            <Route path="/" element={<UserLayout />}>
+              <Route index element={<Home />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="collections/:collection" element={<CollectionPage />} />
+              <Route path="product/:id" element={<ProductDetail />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="order-confirmation" element={<OrderConfirmationPage />} />
+              <Route path="order/:id" element={<OrderDetailsPage />} />
+              <Route path="my-orders" element={<MyOrdersPage />} />
+              <Route path="about" element={<About />} />
+            </Route>
 
-          <Route path="/" element={<UserLayout />}>
-            <Route index element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="collections/:collection" element={<CollectionPage />} />
-            <Route path="product/:id" element={<ProductDetail />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="order-confirmation" element={<OrderConfirmationPage />} />
-            <Route path="order/:id" element={<OrderDetailsPage />} />
-            <Route path="my-orders" element={<MyOrdersPage />} />
-            <Route path="about" element={<About />} />
-          </Route>
-
-          <Route path="/admin"
-            element={
-              <ProtectedRoute role="admin">
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<AdminHomePage />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="products" element={<ProductManagement />} />
-            <Route path="banners" element={<BannerManagement />} />
-            <Route path="coupon" element={<CouponManagement />} />
-            <Route path="products/:id/edit" element={<EditProductPage />} />
-            <Route path="products/create" element={<CreateProductPage />} />
-            <Route path="orders" element={<OrderManagement />} />
-          </Route>
-
-        </Routes>
+            {/* Admin Routes */}
+            <Route 
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminHomePage />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="products" element={<ProductManagement />} />
+              <Route path="banners" element={<BannerManagement />} />
+              <Route path="coupon" element={<CouponManagement />} />
+              <Route path="products/:id/edit" element={<EditProductPage />} />
+              <Route path="products/create" element={<CreateProductPage />} />
+              <Route path="orders" element={<OrderManagement />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </Provider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

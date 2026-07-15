@@ -7,3 +7,16 @@
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+@keyframes zoomSlow {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.animate-zoomSlow {
+  animation: zoomSlow 15s infinite alternate ease-in-out;
+}

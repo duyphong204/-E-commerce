@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProductsByFilters, fetchBestSellerProducts, fetchMostLikedProducts } from "../redux/slices/productsSlice";
+import { fetchBestSellerProducts, fetchMostLikedProducts } from "../redux/slices/productsSlice";
 import Hero from "../components/Layout/Hero";
 import GenderCollectionSection from "../components/Products/GenderCollectionSection";
 import NewArrivals from "../components/Products/NewArrivals";
@@ -20,29 +20,55 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="bg-white">
+      {/* Hero Slider */}
       <Hero />
+      
+      {/* Gender Categories (Men/Women) */}
       <GenderCollectionSection />
+      
+      {/* Swiper of New Arrivals */}
       <NewArrivals />
 
       {/* Best Seller Section */}
-      <div className="container mx-auto my-10">
-        <h2 className="text-xl lg:text-3xl text-center font-bold mb-6">
-          SẢN PHẨM BÁN CHẠY
-        </h2>
+      <div className="container mx-auto py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-12">
+          <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">
+            Best Sellers
+          </span>
+          <h2 className="text-2xl lg:text-4xl font-extrabold text-gray-900 mt-3 mb-3">
+            Sản Phẩm Bán Chạy
+          </h2>
+          <p className="text-sm lg:text-base text-gray-500 max-w-md mx-auto font-light leading-relaxed">
+            Những thiết kế thịnh hành nhất, được khách hàng của Rabbit tin tưởng lựa chọn nhiều nhất.
+          </p>
+        </div>
         <ProductGrid products={bestSellerProducts} loading={loading} error={error} />
       </div>
 
-      {/* Top Product liked */}
-      <div className="container mx-auto my-10">
-        <h2 className="text-xl lg:text-3xl text-center font-bold mb-6">
-          SẢN PHẨM ĐƯỢC YÊU THÍCH NHẤT
-        </h2>
+      {/* Featured Collection Lifestyle Banner */}
+      <FeaturedCollection />
+
+      {/* Top Product Liked */}
+      <div className="container mx-auto py-12 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-12">
+          <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full">
+            Most Loved
+          </span>
+          <h2 className="text-2xl lg:text-4xl font-extrabold text-gray-900 mt-3 mb-3">
+            Được Yêu Thích Nhất
+          </h2>
+          <p className="text-sm lg:text-base text-gray-500 max-w-md mx-auto font-light leading-relaxed">
+            Nhận được đánh giá 5 sao tuyệt đối cùng lượt yêu thích cao kỷ lục từ cộng đồng yêu thời trang.
+          </p>
+        </div>
         <ProductGrid products={mostLikedProducts} loading={loading} error={error} />
       </div>
 
-      <FeaturedCollection />
+      {/* Features Row */}
       <FeaturesSection />
+      
+      {/* Chatbots */}
       <AIChat />
       <ZaloChatIcon />
     </div>
