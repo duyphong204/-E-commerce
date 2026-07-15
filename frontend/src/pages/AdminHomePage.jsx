@@ -43,30 +43,35 @@ const AdminHomePage = () => {
     if (error) return <div className="p-6 text-red-500">{error}</div>;
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h1 className="text-3xl font-bold text-gray-800 whitespace-nowrap">Bảng Điều Khiển Admin</h1>
-                <div className="flex space-x-2">
+        <div className="p-6 sm:p-8 bg-gray-50/50 min-h-screen">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 whitespace-nowrap mb-1">Bảng Điều Khiển Admin</h1>
+                    <p className="text-gray-500 text-sm">Tổng quan về tình hình kinh doanh của cửa hàng</p>
+                </div>
+                
+                {/* Modern Segmented Control */}
+                <div className="flex p-1 bg-gray-200/60 rounded-xl">
                     <button
                         onClick={() => setTimeRange("daily")}
-                        className={`px-2 py-2 rounded-md ${timeRange === "daily" ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${timeRange === "daily" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        Theo Ngày
+                        Hôm nay
                     </button>
                     <button
                         onClick={() => setTimeRange("monthly")}
-                        className={`px-2 py-2 rounded-md ${timeRange === "monthly" ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${timeRange === "monthly" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        Theo Tháng
+                        Tháng này
                     </button>
                     <button
                         onClick={() => setTimeRange("yearly")}
-                        className={`px-2 py-2 rounded-md ${timeRange === "yearly" ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${timeRange === "yearly" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
-                        Theo Năm
+                        Năm nay
                     </button>
                 </div>
             </div>

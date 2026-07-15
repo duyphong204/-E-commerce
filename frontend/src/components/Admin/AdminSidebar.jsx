@@ -1,4 +1,4 @@
-import { FaBoxOpen, FaClipboardList, FaSignOutAlt, FaUser, FaGift, FaImage } from "react-icons/fa";
+import { LayoutDashboard, Users, Box, Image as ImageIcon, TicketPercent, ClipboardList, LogOut } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../../redux/slices/cartSlice";
@@ -16,53 +16,60 @@ const AdminSidebar = () => {
 
   const linkClass = ({ isActive }) =>
     isActive
-      ? "bg-gray-700 text-white py-3 px-4 rounded flex items-center space-x-2"
-      : "text-gray-300 hover:bg-gray-700 hover:text-white py-3 px-4 rounded flex items-center space-x-2";
+      ? "bg-slate-800 text-white py-3 px-4 rounded-xl flex items-center space-x-3 transition-colors shadow-sm"
+      : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 py-3 px-4 rounded-xl flex items-center space-x-3 transition-colors";
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <Link to="/admin" className="text-2xl font-medium">
-          Rabit
+    <div className="p-6 flex flex-col min-h-screen">
+      {/* Brand */}
+      <div className="mb-10 text-center">
+        <Link to="/admin" className="text-3xl font-black tracking-widest text-white">
+          RABBIT<span className="text-blue-500">.</span>
         </Link>
+        <p className="text-xs text-slate-500 uppercase tracking-widest mt-1 font-semibold">Admin Panel</p>
       </div>
-      <h2 className="text-xl font-medium mb-6 text-center">Admin Dashboard</h2>
 
-      <nav className="flex flex-col space-y-2">
+      {/* Nav Links */}
+      <nav className="flex flex-col space-y-2 flex-grow">
+        <NavLink to="/admin" end className={linkClass}>
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="font-medium">Tổng quan</span>
+        </NavLink>
+
         <NavLink to="/admin/users" className={linkClass}>
-          <FaUser />
-          <span>Người dùng</span>
+          <Users className="w-5 h-5" />
+          <span className="font-medium">Người dùng</span>
         </NavLink>
 
         <NavLink to="/admin/products" className={linkClass}>
-          <FaBoxOpen />
-          <span>Sản phẩm</span>
+          <Box className="w-5 h-5" />
+          <span className="font-medium">Sản phẩm</span>
         </NavLink>
 
         <NavLink to="/admin/banners" className={linkClass}>
-          <FaImage />
-          <span>Quản lý Banner</span>
+          <ImageIcon className="w-5 h-5" />
+          <span className="font-medium">Banner</span>
         </NavLink>
 
         <NavLink to="/admin/coupon" className={linkClass}>
-          <FaGift />
-          <span>Khuyến mãi</span>
+          <TicketPercent className="w-5 h-5" />
+          <span className="font-medium">Khuyến mãi</span>
         </NavLink>
 
         <NavLink to="/admin/orders" className={linkClass}>
-          <FaClipboardList />
-          <span>Đơn hàng</span>
+          <ClipboardList className="w-5 h-5" />
+          <span className="font-medium">Đơn hàng</span>
         </NavLink>
-
       </nav>
 
-      <div className="mt-6">
+      {/* Logout */}
+      <div className="mt-auto pt-6 pb-20 md:pb-6 border-t border-slate-800">
         <button
           onClick={handleLogout}
-          className="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded flex items-center justify-center space-x-2"
+          className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-colors font-medium active:scale-95"
           aria-label="Logout"
         >
-          <FaSignOutAlt />
+          <LogOut className="w-5 h-5" />
           <span>Đăng xuất</span>
         </button>
       </div>

@@ -40,25 +40,37 @@ const ProductGrid = ({ products, loading, error }) => {
             <div className="relative flex flex-col h-full bg-white border border-gray-100 rounded-2xl p-3 sm:p-4 transition-all duration-300 hover:shadow-lg hover:border-gray-200/80 hover:translate-y-[-4px]">
               
               {/* Product Image Container */}
-              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-gray-50 mb-4">
+              <div className="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-gray-50 mb-4 group/image">
+                {/* Main Image */}
                 <img
                   src={optimizeCloudinaryUrl(product.images?.[0]?.url, { width: 600 }) || fallback}
                   alt={product.images?.[0]?.altText || product.name || "Product image"}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out group-hover/image:scale-105 ${product.images?.[1] ? 'group-hover/image:opacity-0' : ''}`}
                   loading="lazy"
                   decoding="async"
                 />
                 
+                {/* Hover Image (Secondary) */}
+                {product.images?.[1] && (
+                  <img
+                    src={optimizeCloudinaryUrl(product.images[1].url, { width: 600 })}
+                    alt="Hover View"
+                    className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 ease-out group-hover/image:opacity-100 group-hover/image:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+                
                 {/* Sale / Hot Badge */}
                 {product.isBestSeller && (
-                  <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm uppercase tracking-wide">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm uppercase tracking-wide z-10">
                     Best Seller
                   </span>
                 )}
                 
-                {/* Floating "View Details" overlay on hover */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                  <span className="px-4 py-2 bg-white/95 backdrop-blur-sm text-xs font-bold text-gray-900 rounded-xl shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                {/* Floating Overlay button (Slide up) */}
+                <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 pointer-events-none flex justify-center z-10">
+                  <span className="w-full text-center py-2.5 bg-white/95 backdrop-blur-md text-sm font-bold text-gray-900 rounded-lg shadow-lg transform translate-y-4 group-hover/image:translate-y-0 transition-all duration-300 ease-out pointer-events-auto hover:bg-black hover:text-white">
                     Xem Chi Tiết
                   </span>
                 </div>

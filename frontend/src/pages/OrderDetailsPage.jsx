@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { Link, useParams } from "react-router-dom"
 import { fetchOrderDetails } from "../redux/slices/orderSlice"
 import Loading from "../components/Common/Loading"
-
+import { ChevronLeft, MapPin, CreditCard, Box } from "lucide-react"
 
 const OrderDetailsPage = () => {
     const { id } = useParams()
@@ -12,91 +12,132 @@ const OrderDetailsPage = () => {
 
     useEffect(() => {
         dispatch(fetchOrderDetails(id))
-
     }, [dispatch, id])
 
     if (loading) return <Loading />
-    if (error) return <p>Error : {error}...</p>
+    if (error) return <p className="text-center text-red-500 font-medium my-10">Lỗi : {error}</p>
 
     return (
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 ">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">Chi tiết đặt hàng</h2>
-            {!orderDetails ? (
-                <p>Không tìm thấy chi tiết đơn hàng</p>
-            ) : (
-                <div className="p-4 sm:p-6 rounded-lg border">
-                    {/* order info */}
-                    <div className="flex flex-col sm:flex-row justify-between mb-8">
-                        <div>
-                            <h3 className="text-lg md:text-xl font-semibold">Order ID : #{orderDetails._id}</h3>
-                            <p className="text-gray-600">{new Date(orderDetails.createdAt).toLocaleDateString()}</p>
-                        </div>
-                        <div className="flex flex-col items-start sm:items-end mt-4 sm:mt-0">
-                            <span className={`${orderDetails.isPaid
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"} px-3 py-1 rounded-full text-sm font-medium mb-2`}>
-                                {orderDetails.isPaid ? "Approved" : "Pending"}
-                            </span>
-
-                            <span className={`${orderDetails.isDelivered
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"} px-3 py-1 rounded-full text-sm font-medium mb-2`}>
-                                {orderDetails.isDelivered ? "Delivered" : "Pending"}
-                            </span>
-
-                        </div>
-
-                    </div>
-                    {/* Customer, payment,shipping info  */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
-                        <div>
-                            <h4 className="text-lg font-semibold mb-2">Thông tin thanh toán</h4>
-                            <p>Phương thức thanh toán: {orderDetails.paymentMethod}</p>
-                            <p>Trạng thái : {orderDetails.isPaid ? "Paid" : "Unpaid"}</p>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-semibold mb-2">Thông tin thanh toán</h4>
-                            <p>Phương thức vận chuyển: {orderDetails.shippingMethod}</p>
-                            <p>Địa chỉ : {`${orderDetails.shippingAddress.address}, ${orderDetails.shippingAddress.city}`}</p>
-                        </div>
-                    </div>
-                    {/* product list */}
-                    <div className="overflow-x-auto">
-                        <h4 className="text-lg font-semibold mb-4">Các sản phẩm</h4>
-                        <table className="min-w-full text-gray-600 mb-4">
-                            <thead className="bg-gray-100">
-                                <tr>
-                                    <th className="py-2 px-4">Tên</th>
-                                    <th className="py-2 px-4">Đơn giá</th>
-                                    <th className="py-2 px-4">Số lượng</th>
-                                    <th className="py-2 px-4">Tổng cộng</th>
-                                </tr>
-                            </thead>
-                            <tbody>{orderDetails.orderItems.map((item) => (
-                                <tr key={item.productId} className="border-b">
-                                    <td className="py-2 px-4 flex items-center">
-                                        <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            className="w-12 h-12 object-cover rounded-lg mr-4"
-                                        />
-                                        <Link to={`/product/${item.productId}`} className="text-blue-500 hover:underline">
-                                            {item.name}
-                                        </Link>
-                                    </td>
-                                    <td className="py-2 px-4">${item.price}</td>
-                                    <td className="py-2 px-4">{item.quantity}</td>
-                                    <td className="py-2 px-4">${item.price * item.quantity}</td>
-                                </tr>
-                            ))}</tbody>
-                        </table>
-                    </div>
-                    {/* Back to orders link */}
-                    <Link to="/my-orders" className="text-blue-500 hover:underline">
-                        Quay lại !
+        <div className="bg-gray-50/50 min-h-screen pb-12 pt-6">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                
+                {/* Header & Back button */}
+                <div className="mb-6 flex items-center justify-between">
+                    <Link to="/profile" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors group">
+                        <ChevronLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
+                        Quay lại Đơn hàng
                     </Link>
                 </div>
-            )}
+
+                {!orderDetails ? (
+                    <div className="bg-white p-10 text-center rounded-3xl shadow-sm border border-gray-100">
+                        <p className="text-gray-500">Không tìm thấy chi tiết đơn hàng</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        
+                        {/* Summary Card */}
+                        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                            <div>
+                                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">Mã đơn: #{orderDetails._id.substring(0, 8)}...</h2>
+                                <p className="text-sm text-gray-500">Đặt ngày: {new Date(orderDetails.createdAt).toLocaleDateString("vi-VN")} lúc {new Date(orderDetails.createdAt).toLocaleTimeString("vi-VN")}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold
+                                    ${orderDetails.isPaid
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                                    : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
+                                    {orderDetails.isPaid ? "Đã thanh toán" : "Chờ thanh toán"}
+                                </span>
+                                <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold
+                                    ${orderDetails.isDelivered
+                                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                                    : "bg-purple-50 text-purple-600 border border-purple-200"}`}>
+                                    {orderDetails.isDelivered ? "Đã giao hàng" : "Đang chuẩn bị"}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Customer, Payment, Shipping Info */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Payment */}
+                            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <CreditCard className="w-5 h-5" />
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-900">Thanh toán</h4>
+                                </div>
+                                <div className="space-y-2 text-sm text-gray-600 ml-13">
+                                    <p><span className="font-medium text-gray-900">Phương thức:</span> {orderDetails.paymentMethod}</p>
+                                    <p><span className="font-medium text-gray-900">Trạng thái:</span> {orderDetails.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}</p>
+                                </div>
+                            </div>
+                            
+                            {/* Shipping */}
+                            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                        <MapPin className="w-5 h-5" />
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-900">Giao hàng</h4>
+                                </div>
+                                <div className="space-y-2 text-sm text-gray-600 ml-13">
+                                    <p><span className="font-medium text-gray-900">Phương thức:</span> {orderDetails.shippingMethod}</p>
+                                    <p><span className="font-medium text-gray-900">Địa chỉ:</span> {`${orderDetails.shippingAddress.address}, ${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.country}`}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Product List */}
+                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+                                    <Box className="w-5 h-5" />
+                                </div>
+                                <h4 className="text-lg font-bold text-gray-900">Sản phẩm đã đặt</h4>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-sm text-left">
+                                    <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
+                                        <tr>
+                                            <th className="py-4 px-6 uppercase text-xs">Sản phẩm</th>
+                                            <th className="py-4 px-6 uppercase text-xs">Đơn giá</th>
+                                            <th className="py-4 px-6 uppercase text-xs">SL</th>
+                                            <th className="py-4 px-6 uppercase text-xs text-right">Tổng cộng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 text-gray-700">
+                                        {orderDetails.orderItems.map((item) => (
+                                            <tr key={item.productId} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="py-4 px-6 flex items-center gap-4">
+                                                    <img
+                                                        src={item.image}
+                                                        alt={item.name}
+                                                        className="w-14 h-14 object-cover rounded-xl border border-gray-100 shadow-sm"
+                                                    />
+                                                    <Link to={`/product/${item.productId}`} className="font-medium text-gray-900 hover:text-emerald-600 transition-colors">
+                                                        {item.name}
+                                                    </Link>
+                                                </td>
+                                                <td className="py-4 px-6">${item.price.toLocaleString()}</td>
+                                                <td className="py-4 px-6 font-medium">{item.quantity}</td>
+                                                <td className="py-4 px-6 text-right font-bold text-gray-900">${(item.price * item.quantity).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot className="bg-gray-50/50">
+                                        <tr>
+                                            <td colSpan="3" className="py-4 px-6 text-right font-semibold text-gray-600">Tổng tiền thanh toán:</td>
+                                            <td className="py-4 px-6 text-right font-bold text-xl text-gray-900">${orderDetails.totalPrice.toLocaleString()}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

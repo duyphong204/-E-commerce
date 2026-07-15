@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
+import { X, RotateCcw } from "lucide-react"
 
 const FilterSlideBar = () => {
-    const [searchParams , setSearchParams]=useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
-    const [filters,setFilters]=useState({
-        category : "",
-        gender : "",
-        color:"",
-        size:[],
-        material:[],
-        brand:[],
-        minPrice:0,
-        maxPrice:100,
+    const [filters, setFilters] = useState({
+        category: "",
+        gender: "",
+        color: "",
+        size: [],
+        material: [],
+        brand: [],
+        minPrice: 0,
+        maxPrice: 100,
     })
 
-    const [priceRange,setPriceRange] = useState([0,100])
-    const categories = ["Top Wear","Bottom Wear"]
-    const colors= [
+    const [priceRange, setPriceRange] = useState([0, 100])
+    const categories = ["Top Wear", "Bottom Wear"]
+    const colors = [
         "Red",
         "Blue",
         "Black",
@@ -29,8 +30,8 @@ const FilterSlideBar = () => {
         "Beige",
         "Navy"
     ]
-    const sizes=["XS","S","M","L","XL","XXL"]
-    const materials=[
+    const sizes = ["XS", "S", "M", "L", "XL", "XXL"]
+    const materials = [
         "Cotton",
         "Len",
         "Denim",
@@ -46,8 +47,9 @@ const FilterSlideBar = () => {
         "Fashionista",
         "ChicStyle"
     ]
-    const genders=["Men","Women"]
-    useEffect(()=>{
+    const genders = ["Men", "Women"]
+
+    useEffect(() => {
         const params = Object.fromEntries([...searchParams])
 
         setFilters({
@@ -57,176 +59,304 @@ const FilterSlideBar = () => {
             size: params.size ? params.size.split(",") : [],
             material: params.material ? params.material.split(",") : [],
             brand: params.brand ? params.brand.split(",") : [],
-            minPrice: params.minPrice || 0,
-            maxPrice: params.maxPrice || 100
+            minPrice: Number(params.minPrice) || 0,
+            maxPrice: Number(params.maxPrice) || 100
         })
 
-        setPriceRange([0,params.maxPrice || 100 ])
-    },[searchParams])
+        setPriceRange([0, Number(params.maxPrice) || 100])
+    }, [searchParams])
 
-    const handleFilterChange = (e)=>{
-        const {name,value,checked,type}=e.target
-        let newFilters={...filters}
-        if(type==="checkbox"){
-            if(checked){
-                newFilters[name]=[...(newFilters[name] || []),value]
-            }else{
-                newFilters[name]=newFilters[name].filter((item)=>item !==value)
+    const handleFilterChange = (e) => {
+        const { name, value, checked, type } = e.target
+        let newFilters = { ...filters }
+        if (type === "checkbox") {
+            if (checked) {
+                newFilters[name] = [...(newFilters[name] || []), value]
+            } else {
+                newFilters[name] = newFilters[name].filter((item) => item !== value)
             }
-        }else{
-            newFilters[name]=value
+        } else {
+            newFilters[name] = value
         }
         setFilters(newFilters)
         updateURLParams(newFilters)
     }
 
-    const updateURLParams = (newFilters)=>{
+    const updateURLParams = (newFilters) => {
         const params = new URLSearchParams()
-        Object.keys(newFilters).forEach((key)=>{
-            if(Array.isArray(newFilters[key]) && newFilters[key].length>0){
-                params.append(key,newFilters[key].join(","))
-            }else if(newFilters[key]){
-                params.append(key,newFilters[key])
+        Object.keys(newFilters).forEach((key) => {
+            if (Array.isArray(newFilters[key]) && newFilters[key].length > 0) {
+                params.append(key, newFilters[key].join(","))
+            } else if (newFilters[key] !== "" && newFilters[key] !== 0 && key !== "minPrice") {
+                params.append(key, newFilters[key])
             }
         })
         setSearchParams(params)
-        navigate(`?${params.toString()}`) // ?category=Bottom+Wear&size=XS%2CS
-    }   
-    const handlePriceChange=(e)=>{
-        const newPrice=e.target.value
-        setPriceRange([0,newPrice])
-        const newFilters={...filters,minPrice: 0, maxPrice: newPrice}
+        navigate(`?${params.toString()}`)
+    }
+
+    const handlePriceChange = (e) => {
+        const newPrice = Number(e.target.value)
+        setPriceRange([0, newPrice])
+        const newFilters = { ...filters, minPrice: 0, maxPrice: newPrice }
         setFilters(newFilters)
         updateURLParams(newFilters)
     }
- return (
-    <div className="p-4 ">
-        <h3 className="text-xl font-medium text-gray-800 mb-4">Lọc</h3>
 
-        {/* category Filter  */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Loại</label>
-            {categories.map((category)=>(
-                <div key={category} className="flex items-center mb-1">
-                    <input 
-                    type="radio" 
-                    name="category" 
-                    value={category}
-                    onChange={handleFilterChange}
-                    checked={filters.category===category}
-                    className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300"/>
-                    <span className="text-gray-700">{category}</span>
-                </div>
-            ))}
-        </div>
-            {/* gender filter */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Giới tính</label>
-            {genders.map((gender)=>(
-                <div key={gender} className="flex items-center mb-1">
-                    <input 
-                    type="radio" 
-                    name="gender" 
-                    value={gender}
-                    onChange={handleFilterChange}
-                    checked={filters.gender===gender}
-                    className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300"/>
-                    <span className="text-gray-700">{gender}</span>
-                </div>
-            ))}
-        </div>
+    const handleClearAll = () => {
+        const cleared = {
+            category: "",
+            gender: "",
+            color: "",
+            size: [],
+            material: [],
+            brand: [],
+            minPrice: 0,
+            maxPrice: 100,
+        }
+        setFilters(cleared)
+        setPriceRange([0, 100])
+        setSearchParams(new URLSearchParams())
+        navigate("?")
+    }
 
-            {/* color filter */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Màu sắc</label>
-            <div className="flex flex-wrap gap-2">
-                {colors.map((color)=>(
-                    <button 
-                    key={color} 
-                    name="color" 
-                    value={color}
-                    onClick={() =>
-                    handleFilterChange({
-                        target: { name: "color", value : filters.color === color ? "" : color }
-                    })
-                    }
-                    className={`w-8 h-8 rounded-full border border-gray-300 cursor-pointer transition 
-                    hover:scale-150 ${filters.color===color ? "ring-2 ring-blue-500":""}`} style={{backgroundColor: color.toLowerCase()}}>
+    const hasActiveFilters = 
+        filters.category !== "" ||
+        filters.gender !== "" ||
+        filters.color !== "" ||
+        filters.size.length > 0 ||
+        filters.material.length > 0 ||
+        filters.brand.length > 0 ||
+        filters.maxPrice !== 100;
+
+    return (
+        <div className="space-y-7 pr-2">
+            
+            {/* Header Lọc */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <h3 className="text-lg font-black text-gray-900 tracking-tight">Bộ lọc</h3>
+                {hasActiveFilters && (
+                    <button
+                        onClick={handleClearAll}
+                        className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1.5"
+                    >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Xóa lọc</span>
                     </button>
-                ))}
+                )}
             </div>
-        </div>
-            {/* size filter  */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Size</label>
-            {sizes.map((size)=>(
-                <div key={size} className="flex items-center mb-1" >
-                    <input 
-                    type="checkbox" 
-                    name="size" 
-                    value={size}
-                    onChange={handleFilterChange}
-                    checked={filters.size.includes(size)}
-                    className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300" 
-                    />
-                    <span className="text-gray-700">{size}</span>
-                </div>
-            ))}
-        </div>
-            {/* material filter  */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Vật liệu</label>
-            {materials.map((material)=>(
-                <div key={material} className="flex items-center mb-1" >
-                    <input 
-                    type="checkbox" 
-                    name="material" 
-                    value={material}
-                    onChange={handleFilterChange}
-                    checked={filters.material.includes(material)}
-                    className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300" 
-                    />
-                    <span className="text-gray-700">{material}</span>
-                </div>
-            ))}
-        </div>
-            {/* brand filter  */}
-        <div className="mb-6">
-            <label className="block text-gray-600 font-medium mb-2">Brand</label>
-            {brands.map((brand)=>(
-                <div key={brand} className="flex items-center mb-1" >
-                    <input 
-                    type="checkbox" 
-                    name="brand" 
-                    value={brand}
-                    onChange={handleFilterChange}
-                    checked={filters.brand.includes(brand)}
-                    className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300" 
-                    />
-                    <span className="text-gray-700">{brand}</span>
-                </div>
-            ))}
-        </div>
-        {/* price range filter  */}
-        <div className="mb-8">
-            <label className="block text-gray-600 font-medium mb-2">Khoảng giá</label>
-            <input 
-            type="range" 
-            name="priceRange" 
-            min={0} 
-            max={100}
-            value={priceRange[1]}
-            onChange={handlePriceChange} 
-            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="flex justify-between text-gray-600 mt-2">
-                <span>$0</span>
-                <span>${priceRange[1]}</span>
-            </div>
-        </div>
 
-    </div>
-  )
+            {/* Phân loại (Chips) */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Danh mục</span>
+                <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => {
+                        const isSelected = filters.category === category;
+                        return (
+                            <button
+                                type="button"
+                                key={category}
+                                onClick={() =>
+                                    handleFilterChange({
+                                        target: { name: "category", value: isSelected ? "" : category }
+                                    })
+                                }
+                                className={`px-3 py-1.5 rounded-xl border text-[11px] font-extrabold uppercase tracking-wide transition-all duration-200 active:scale-95
+                                    ${isSelected
+                                        ? "bg-gray-950 text-white border-transparent shadow-sm"
+                                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-900"
+                                    }`}
+                            >
+                                {category === "Top Wear" ? "Áo" : category === "Bottom Wear" ? "Quần" : category}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Giới tính (Chips) */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Giới tính</span>
+                <div className="flex flex-wrap gap-2">
+                    {genders.map((gender) => {
+                        const isSelected = filters.gender === gender;
+                        return (
+                            <button
+                                type="button"
+                                key={gender}
+                                onClick={() =>
+                                    handleFilterChange({
+                                        target: { name: "gender", value: isSelected ? "" : gender }
+                                    })
+                                }
+                                className={`px-3.5 py-1.5 rounded-xl border text-[11px] font-extrabold uppercase tracking-wide transition-all duration-200 active:scale-95
+                                    ${isSelected
+                                        ? "bg-gray-950 text-white border-transparent shadow-sm"
+                                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-900"
+                                    }`}
+                            >
+                                {gender === "Men" ? "Nam" : gender === "Women" ? "Nữ" : gender}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Màu sắc */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Màu sắc</span>
+                <div className="flex flex-wrap gap-2.5">
+                    {colors.map((color) => {
+                        const isSelected = filters.color === color;
+                        return (
+                            <button
+                                key={color}
+                                type="button"
+                                onClick={() =>
+                                    handleFilterChange({
+                                        target: { name: "color", value: isSelected ? "" : color }
+                                    })
+                                }
+                                className={`w-7.5 h-7.5 rounded-full border transition-all duration-200 relative flex items-center justify-center hover:scale-110 active:scale-90
+                                    ${isSelected ? "ring-2 ring-offset-2 ring-emerald-500 border-transparent" : "border-gray-200"}`}
+                                style={{ backgroundColor: color.toLowerCase() }}
+                                title={color}
+                            >
+                                {isSelected && (
+                                    <span className="w-2.5 h-2.5 rounded-full bg-white shadow-sm mix-blend-difference" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Size (Square Chips) */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Kích thước</span>
+                <div className="flex flex-wrap gap-2">
+                    {sizes.map((size) => {
+                        const isSelected = filters.size.includes(size);
+                        return (
+                            <button
+                                type="button"
+                                key={size}
+                                onClick={() => {
+                                    const newSize = isSelected
+                                        ? filters.size.filter((s) => s !== size)
+                                        : [...filters.size, size];
+                                    const newFilters = { ...filters, size: newSize };
+                                    setFilters(newFilters);
+                                    updateURLParams(newFilters);
+                                }}
+                                className={`w-10 h-10 flex items-center justify-center rounded-xl border text-[11px] font-extrabold transition-all duration-200 active:scale-90
+                                    ${isSelected
+                                        ? "bg-gray-950 text-white border-transparent shadow-sm"
+                                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-900"
+                                    }`}
+                            >
+                                {size}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Chất liệu (Custom Checkbox) */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Chất liệu</span>
+                <div className="space-y-2.5">
+                    {materials.map((material) => {
+                        const isSelected = filters.material.includes(material);
+                        return (
+                            <label key={material} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-gray-500 cursor-pointer group">
+                                <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-200
+                                    ${isSelected 
+                                        ? "bg-emerald-500 border-transparent text-white" 
+                                        : "bg-white border-gray-200 group-hover:border-gray-400"}`}
+                                >
+                                    {isSelected && (
+                                        <svg className="w-3 h-3 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    name="material"
+                                    value={material}
+                                    checked={isSelected}
+                                    onChange={handleFilterChange}
+                                    className="sr-only"
+                                />
+                                <span className={`transition-colors duration-200 ${isSelected ? "text-gray-900 font-bold" : "group-hover:text-gray-900"}`}>
+                                    {material}
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Thương hiệu (Custom Checkbox) */}
+            <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-800">Thương hiệu</span>
+                <div className="space-y-2.5">
+                    {brands.map((brand) => {
+                        const isSelected = filters.brand.includes(brand);
+                        return (
+                            <label key={brand} className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-gray-500 cursor-pointer group">
+                                <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-200
+                                    ${isSelected 
+                                        ? "bg-emerald-500 border-transparent text-white" 
+                                        : "bg-white border-gray-200 group-hover:border-gray-400"}`}
+                                >
+                                    {isSelected && (
+                                        <svg className="w-3 h-3 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    name="brand"
+                                    value={brand}
+                                    checked={isSelected}
+                                    onChange={handleFilterChange}
+                                    className="sr-only"
+                                />
+                                <span className={`transition-colors duration-200 ${isSelected ? "text-gray-900 font-bold" : "group-hover:text-gray-900"}`}>
+                                    {brand}
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Khoảng giá */}
+            <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-800">Giá tối đa</span>
+                    <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">${priceRange[1]}</span>
+                </div>
+                <input 
+                    type="range" 
+                    name="priceRange" 
+                    min={0} 
+                    max={100}
+                    value={priceRange[1]}
+                    onChange={handlePriceChange} 
+                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
+                />
+                <div className="flex justify-between text-[10px] text-gray-400 font-bold">
+                    <span>$0</span>
+                    <span>$100</span>
+                </div>
+            </div>
+
+        </div>
+    )
 }
 
 export default FilterSlideBar

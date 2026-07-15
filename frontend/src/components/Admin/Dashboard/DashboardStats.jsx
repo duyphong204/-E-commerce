@@ -1,44 +1,44 @@
 import React from "react";
-import { FaMoneyBillWave, FaShoppingCart, FaUser, FaBoxOpen } from "react-icons/fa";
+import { Banknote, ShoppingCart, Users, AlertTriangle } from "lucide-react";
 
 const DashboardStats = ({ stats }) => {
     const cards = [
         {
             title: "Tổng Doanh Thu",
-            value: `$${(stats?.totalRevenue || 0).toLocaleString()}`,
-            icon: <FaMoneyBillWave size={24} className="text-green-600" />,
-            color: "bg-green-100",
+            value: `$${(stats?.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            icon: <Banknote className="w-7 h-7" />,
+            colorClass: "bg-emerald-50 text-emerald-600",
         },
         {
             title: "Tổng Đơn Hàng",
             value: stats?.totalOrders || 0,
-            icon: <FaShoppingCart size={24} className="text-blue-600" />,
-            color: "bg-blue-100",
+            icon: <ShoppingCart className="w-7 h-7" />,
+            colorClass: "bg-blue-50 text-blue-600",
         },
         {
             title: "Tổng Người Dùng",
             value: stats?.totalUsers || 0,
-            icon: <FaUser size={24} className="text-purple-600" />,
-            color: "bg-purple-100",
+            icon: <Users className="w-7 h-7" />,
+            colorClass: "bg-purple-50 text-purple-600",
         },
         {
             title: "Sản Phẩm Sắp Hết",
             value: stats?.lowStockProducts?.length || 0,
-            icon: <FaBoxOpen size={24} className="text-red-600" />,
-            color: "bg-red-100",
+            icon: <AlertTriangle className="w-7 h-7" />,
+            colorClass: "bg-red-50 text-red-600",
         },
     ];
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {cards.map((card, index) => (
-                <div key={index} className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                    <div className={`p-3 rounded-full ${card.color} mr-4`}>
+                <div key={index} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5 transition-transform hover:-translate-y-1 cursor-default">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${card.colorClass}`}>
                         {card.icon}
                     </div>
                     <div>
-                        <h3 className="text-gray-500 text-sm font-medium">{card.title}</h3>
-                        <p className="text-2xl font-bold text-gray-800">{card.value}</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">{card.title}</p>
+                        <h3 className="text-2xl font-bold text-gray-900">{card.value}</h3>
                     </div>
                 </div>
             ))}

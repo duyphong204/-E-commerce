@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCoupons, addCoupon, deleteCoupon, toggleCouponStatus, searchCoupon, updateCoupon, } from "../../../redux/slices/couponAdminSlice";
 import { NotificationService } from "../../../utils/notificationService";
+import { TicketPercent } from "lucide-react";
 import SearchBar from "../../Common/SearchBar";
 import Pagination from "../../Common/Pagination";
+import Loading from "../../Common/Loading";
 import CouponForm from "./CouponForm";
 import CouponTable from "./CouponTable";
 import EditCouponModal from "./EditCouponModal";
@@ -86,31 +88,45 @@ const CouponManagement = () => {
     setModal({ open: true, coupon });
   };
 
-  if (loading) return <p className="text-center">Đang tải...</p>;
-  if (error) return <p className="text-red-500 text-center">Lỗi: {error}</p>;
+  if (loading) return <Loading />;
+  if (error) return <div className="p-6 text-red-500 font-medium">Lỗi: {error}</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="flex flex-col mb-6">
-        <h2 className="text-2xl font-bold mb-6">Quản Lý Mã Giảm Giá</h2>
-        <SearchBar onSearch={handleSearch} placeholder="Tìm mã giảm giá..." />
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Quản Lý Mã Giảm Giá</h2>
+            <p className="text-gray-500 text-sm">Cấu hình các chương trình khuyến mãi và chiến dịch giảm giá</p>
+        </div>
+        <div className="w-full md:w-72">
+            <SearchBar onSearch={handleSearch} placeholder="Tìm kiếm theo mã..." />
+        </div>
       </div>
 
-      <CouponForm coupons={coupons} onSubmit={handleCreateCoupon} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+            <CouponForm coupons={coupons} onSubmit={handleCreateCoupon} />
+        </div>
 
-      <CouponTable
-        coupons={coupons}
-        page={page}
-        onToggle={handleToggle}
-        onEdit={handleEditRequest}
-        onDelete={handleDelete}
-      />
+        <div className="lg:col-span-2">
+            <CouponTable
+                coupons={coupons}
+                page={page}
+                onToggle={handleToggle}
+                onEdit={handleEditRequest}
+                onDelete={handleDelete}
+            />
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+            <div className="mt-6 flex justify-end">
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
+            </div>
+        </div>
+      </div>
 
       <EditCouponModal
         open={modal.open}

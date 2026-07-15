@@ -1,0 +1,61 @@
+version: "3.9"
+
+x-api-url: &api-url ${VITE_API_URL:-http://localhost:8000}
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: dp_shop_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: dp_shop_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s  
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        VITE_API_URL: *api-url
+        VITE_PAY_URL: ${VITE_PAY_URL:-AfvV4sqnicxlUUwarf2GEonxtbl9uzpUn7y103I3VwvCM93wQNmmMv1801rFRTWQHRO_bx1xwYLOSB0L}
+    container_name: dp_shop_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  redis_data:

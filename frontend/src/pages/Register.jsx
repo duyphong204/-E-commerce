@@ -1,115 +1,175 @@
 import { useEffect, useState } from "react"
-import register from "../../assets/register1.webp"
+import registerImg from "../../assets/register1.webp"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { registerUser } from "../redux/slices/authSlice"
 import { mergeCart } from "../redux/slices/cartSlice"
 import { NotificationService } from "../utils/notificationService"
+import { User as UserIcon, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 
 const Register = () => {
-    const [name,setName]=useState("")
-    const [password,setPassword]=useState("")
-    const [email,setEmail]=useState("")
+    const [name, setName] = useState("")
+    const [password, setPassword] = useState("")
+    const [email, setEmail] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
 
     const dispatch = useDispatch()  
     const navigate = useNavigate()
     const location = useLocation()
-    const {user,guestId, loading} = useSelector((state) => state.auth)
-    const {cart} = useSelector((state) => state.cart)
+    const { user, guestId, loading } = useSelector((state) => state.auth)
+    const { cart } = useSelector((state) => state.cart)
 
-    //  lấy tham số chuyển hướng và kiểm tra xem nó có phải là checkout hay gì đó không
     const redirect = new URLSearchParams(location.search).get("redirect") || "/"
     const isCheckoutRedirect = redirect.includes("checkout")
 
-    useEffect(()=>{
-        if(user){
-            if(cart?.products.length > 0 && guestId){
-                dispatch(mergeCart({guestId,user})).then(()=>{
+    useEffect(() => {
+        if (user) {
+            if (cart?.products.length > 0 && guestId) {
+                dispatch(mergeCart({ guestId, user })).then(() => {
                     navigate(isCheckoutRedirect ? "/checkout" : "/")
                 })
-            } else{
+            } else {
                  navigate(isCheckoutRedirect ? "/checkout" : "/")
             }
         }
-    },[user,guestId,cart,navigate,isCheckoutRedirect,dispatch])
+    }, [user, guestId, cart, navigate, isCheckoutRedirect, dispatch])
     
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        try{
+        try {
            await dispatch(registerUser({ name, email, password })).unwrap()
            NotificationService.success("Đăng ký tài khoản thành công")
-           navigate("/login"); // <--- chuyển hướng sang login
-        }catch(error){
+           navigate("/login"); 
+        } catch (error) {
             const errorMessage = error.message || "Đăng ký thất bại. Vui lòng kiểm tra lại.";
             NotificationService.error(errorMessage);
         }
     };
 
-  return (
-    <div className="flex">
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-12">
+    return (
+        <div className="flex min-h-[80vh] bg-gray-50/50">
+            {/* Form Column */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-4 sm:p-8 lg:p-12">
+                <div className="w-full max-w-md bg-white p-6 sm:p-10 rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm transition-all hover:shadow-md">
+                    {/* Logo & Header */}
+                    <div className="text-center mb-6 sm:mb-8">
+                        <Link to="/" className="text-2xl sm:text-3xl font-black tracking-widest text-gray-900">
+                            RABBIT<span className="text-emerald-500">.</span>
+                        </Link>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mt-4 sm:mt-6 mb-1.5">Tạo tài khoản mới</h2>
+                        <p className="text-gray-400 text-xs sm:text-sm font-semibold">Đăng ký để nhận những ưu đãi đặc biệt.</p>
+                    </div>
 
-            <form onSubmit={handleSubmit}
-                className="w-full max-w-md bg-white p-8 rounded-lg border shadow-sm">
-                
-                <div className="flex justify-center mb-6">
-                    <h2 className="text-xl font-medium">DP</h2>
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                        {/* Name Input */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-1.5">Họ và Tên</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                    <UserIcon className="w-4.5 h-4.5" />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    value={name} 
+                                    onChange={(e) => setName(e.target.value)} 
+                                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all duration-300"
+                                    placeholder="Họ tên của bạn"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email Input */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-1.5">Địa chỉ Email</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                    <Mail className="w-4.5 h-4.5" />
+                                </div>
+                                <input 
+                                    type="email" 
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all duration-300"
+                                    placeholder="your-email@example.com"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Input */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-1.5">Mật khẩu</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                    <Lock className="w-4.5 h-4.5" />
+                                </div>
+                                <input 
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full pl-10 pr-11 py-2.5 sm:py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all duration-300"
+                                    placeholder="Tối thiểu 6 ký tự"
+                                    required 
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="w-full bg-gray-950 text-white py-3 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base hover:bg-emerald-600 transition-all duration-300 shadow-md hover:shadow-emerald-500/10 active:scale-[0.98] disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                        >
+                            {loading ? "Đang xử lý..." : "Đăng Ký Tài Khoản"}
+                            {!loading && <ArrowRight className="w-4 h-4" />}
+                        </button>
+
+                        {/* Footer Link */}
+                        <p className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-400 font-bold">
+                            Đã có tài khoản?{" "}
+                            <Link 
+                                to={`/login?redirect=${encodeURIComponent(redirect)}`}  
+                                className="text-emerald-600 hover:text-emerald-700 hover:underline transition-colors"
+                            >
+                                Đăng nhập
+                            </Link>
+                        </p>
+                    </form>
                 </div>
+            </div>
 
-                <h2 className="text-2xl font-bold text-center mb-6">Hi there !</h2>
-                <p className="text-center mb-6">Enter your username and password to Login</p>
-
-                <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Name</label>
-                    <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e)=>setName(e.target.value)} 
-                    className="w-full p-2 border rounded"
-                    placeholder="Enter your Name"/>
-                </div>
-
-                <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Email</label>
-                    <input 
-                    type="email" 
-                    value={email} 
-                    onChange={(e)=>setEmail(e.target.value)} 
-                    className="w-full p-2 border rounded"
-                    placeholder="Enter your Email"/>
-                </div>
-
-                <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Password</label>
-                    <input 
-                    type="password"
-                    value={password}
-                    onChange={(e)=>setPassword(e.target.value)}
-                    className="w-full p-2 border rounded"
-                    placeholder="Enter your password" />
-                </div>
-                <button type="submit" className="w-full bg-black text-white p-2 rounded-lg font-semibold hover:bg-gray-800 transition">
-                   { loading ? "Loading...": "Sign Up"}
-                </button>
-                <p className="mt-6 text-center text-sm">Bạn có tài khoản?{" "}
-
-                    <Link to={`/login?redirect=${encodeURIComponent(redirect)}`}  
-                            className="text-blue-500">
-                            Đăng nhập
-                    </Link>
-                </p>
-            </form>
-        </div>
-        <div className="hidden md:block w-1/2 bg-gray-800">
-            <div className="h-full flex flex-col justify-center items-center">
+            {/* Cover Column */}
+            <div className="hidden md:block w-1/2 relative bg-gray-900 overflow-hidden">
                 <img 
-                src={register} 
-                alt="Register to account" 
-                className="h-[750px] w-full object-cover" />
+                    src={registerImg} 
+                    alt="Register to account" 
+                    className="absolute inset-0 h-full w-full object-cover opacity-80" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/20 to-transparent" />
+                
+                {/* Brand Overlay Text */}
+                <div className="absolute bottom-12 left-12 right-12 text-white max-w-sm">
+                    <span className="px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest border border-white/10 uppercase mb-3.5 inline-block">
+                        Rabbit Member
+                    </span>
+                    <h3 className="text-3xl font-extrabold tracking-tight mb-3 leading-tight">
+                        Gia nhập đại gia đình Rabbit
+                    </h3>
+                    <p className="text-gray-300 text-xs sm:text-sm font-light leading-relaxed">
+                        Nhận ngay các ưu đãi đặc quyền hội viên, cập nhật xu hướng thời trang sớm nhất và lịch sử giao dịch thuận tiện.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default Register

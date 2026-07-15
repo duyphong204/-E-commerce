@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { XCircle, Save, Hash, Percent, DollarSign, Target, Calendar } from "lucide-react";
 
 // Chuyển date sang format YYYY-MM-DD cho input
 const formatDateForInput = (date) =>
@@ -74,170 +75,185 @@ const EditCouponModal = ({ open, coupon, coupons, onClose, onSubmit }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6 relative">
-                <button
-                    onClick={onClose}
-                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-                    aria-label="Đóng"
-                >
-                    ✕
-                </button>
-
-                <h3 className="text-xl font-semibold mb-4">Chỉnh sửa mã giảm giá</h3>
-
-                <form
-                    onSubmit={handleSubmit}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
-                    <div className="col-span-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Mã giảm giá
-                        </label>
-                        <input
-                            name="code"
-                            value={data.code}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                            required
-                        />
-                        {errors.code && (
-                            <p className="text-red-500 text-sm mt-1">{errors.code}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Loại giảm
-                        </label>
-                        <select
-                            name="discountType"
-                            value={data.discountType}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                        >
-                            <option value="percent">Phần trăm (%)</option>
-                            <option value="fixed">Giảm cố định (VND)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Giá trị giảm
-                        </label>
-                        <input
-                            name="discountValue"
-                            type="number"
-                            min="1"
-                            value={data.discountValue}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                            required
-                        />
-                    </div>
-
-                    {data.discountType === "percent" && (
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Giảm tối đa
-                            </label>
-                            <input
-                                name="maxDiscountValue"
-                                type="number"
-                                min="0"
-                                value={data.maxDiscountValue}
-                                onChange={handleChange}
-                                className="border p-2 rounded w-full"
-                            />
-                        </div>
-                    )}
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Đơn tối thiểu
-                        </label>
-                        <input
-                            name="minOrderValue"
-                            type="number"
-                            min="0"
-                            value={data.minOrderValue}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Giới hạn người dùng
-                        </label>
-                        <input
-                            name="usageLimit"
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={data.usageLimit}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                            Bỏ trống để không giới hạn.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Ngày bắt đầu
-                        </label>
-                        <input
-                            type="date"
-                            name="startDate"
-                            value={data.startDate}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Ngày kết thúc
-                        </label>
-                        <input
-                            type="date"
-                            name="endDate"
-                            value={data.endDate}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full"
-                            required
-                        />
-                    </div>
-
-                    <label className="flex items-center gap-2 mt-2">
-                        <input
-                            type="checkbox"
-                            name="isActive"
-                            checked={data.isActive}
-                            onChange={handleChange}
-                        />
-                        <span>Kích hoạt</span>
-                    </label>
-
-                    <div className="col-span-full flex justify-end gap-3 mt-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto scale-in-center">
+                <div className="p-6 sm:p-8">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900">Chỉnh Sửa Mã Giảm Giá</h3>
                         <button
-                            type="button"
                             onClick={onClose}
-                            className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+                            className="p-2 bg-gray-50 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+                            aria-label="Đóng"
                         >
-                            Hủy
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-                        >
-                            Lưu thay đổi
+                            <XCircle className="w-6 h-6" />
                         </button>
                     </div>
-                </form>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Mã giảm giá */}
+                            <div className="col-span-full">
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                                    <Hash className="w-4 h-4 text-gray-400" /> Mã giảm giá *
+                                </label>
+                                <input
+                                    name="code"
+                                    value={data.code}
+                                    onChange={handleChange}
+                                    className={`w-full px-4 py-2.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all uppercase ${errors.code ? 'border-red-400 ring-1 ring-red-400' : 'border-gray-200'}`}
+                                    required
+                                />
+                                {errors.code && (
+                                    <p className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                                        <span className="w-1 h-1 rounded-full bg-red-500"></span> {errors.code}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Loại giảm */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Loại giảm</label>
+                                <select
+                                    name="discountType"
+                                    value={data.discountType}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none"
+                                >
+                                    <option value="percent">Phần trăm (%)</option>
+                                    <option value="fixed">Tiền mặt (VND)</option>
+                                </select>
+                            </div>
+
+                            {/* Giá trị giảm */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                                    {data.discountType === 'percent' ? <Percent className="w-4 h-4 text-gray-400" /> : <DollarSign className="w-4 h-4 text-gray-400" />} Giá trị *
+                                </label>
+                                <input
+                                    name="discountValue"
+                                    type="number"
+                                    min="1"
+                                    value={data.discountValue}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    required
+                                />
+                            </div>
+
+                            {/* Giảm tối đa */}
+                            {data.discountType === "percent" && (
+                                <div className="col-span-full animate-in fade-in slide-in-from-top-1 duration-200">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                                        <Target className="w-4 h-4 text-gray-400" /> Giảm tối đa (VND)
+                                    </label>
+                                    <input
+                                        name="maxDiscountValue"
+                                        type="number"
+                                        min="0"
+                                        value={data.maxDiscountValue}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="Không giới hạn nếu để trống"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Đơn tối thiểu */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Đơn tối thiểu (VND)</label>
+                                <input
+                                    name="minOrderValue"
+                                    type="number"
+                                    min="0"
+                                    value={data.minOrderValue}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                />
+                            </div>
+
+                            {/* Giới hạn người dùng */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Số lượng</label>
+                                <input
+                                    name="usageLimit"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={data.usageLimit}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Bỏ trống để không giới hạn</p>
+                            </div>
+
+                            {/* Ngày bắt đầu */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4 text-gray-400" /> Bắt đầu *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="startDate"
+                                    value={data.startDate}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    required
+                                />
+                            </div>
+
+                            {/* Ngày kết thúc */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                                    <Calendar className="w-4 h-4 text-gray-400" /> Kết thúc *
+                                </label>
+                                <input
+                                    type="date"
+                                    name="endDate"
+                                    value={data.endDate}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Kích hoạt */}
+                        <div className="pt-2">
+                            <label className="flex items-center gap-3 cursor-pointer group w-max">
+                                <div className="relative">
+                                    <input
+                                        type="checkbox"
+                                        name="isActive"
+                                        checked={data.isActive}
+                                        onChange={handleChange}
+                                        className="sr-only"
+                                    />
+                                    <div className={`block w-10 h-6 rounded-full transition-colors ${data.isActive ? 'bg-emerald-500' : 'bg-gray-200'}`}></div>
+                                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform ${data.isActive ? 'translate-x-4' : ''}`}></div>
+                                </div>
+                                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Kích hoạt mã ngay</span>
+                            </label>
+                        </div>
+
+                        {/* Thao tác */}
+                        <div className="flex gap-3 pt-4 border-t border-gray-100 mt-2">
+                            <button
+                                type="submit"
+                                disabled={!!errors.code}
+                                className={`flex-1 bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-xl disabled:bg-gray-300 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center gap-2`}
+                            >
+                                <Save className="w-5 h-5" /> Lưu Thay Đổi
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 rounded-xl transition-all"
+                            >
+                                Hủy Bỏ
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

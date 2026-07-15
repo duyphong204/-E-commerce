@@ -19,11 +19,19 @@ const CartDrawer = ({drawerOpen,toggleCartDrawer}) => {
         }
     }
   return (
-    <div className={`fixed top-0 right-0 w-3/4 sm:w-1/2 md:w-[30rem] h-full
-        bg-white shadow-lg transform 
-        transition-transform duration-300 flex flex-col z-50
-        ${drawerOpen ? "translate-x-0": "translate-x-full"}`}>
-        {/*close button*/}
+    <>
+      {/* Overlay Back-drop */}
+      {drawerOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out"
+          onClick={toggleCartDrawer}
+        />
+      )}
+      <div className={`fixed top-0 right-0 w-3/4 sm:w-1/2 md:w-[30rem] h-full
+          bg-white shadow-2xl transform 
+          transition-transform duration-300 ease-in-out flex flex-col z-50
+          ${drawerOpen ? "translate-x-0": "translate-x-full"}`}>
+          {/*close button*/}
         <div className='flex justify-end p-4 '>
             <button onClick={()=>toggleCartDrawer()}>
                 <IoMdClose className='h-6 w-6 text-gray-600'/>
@@ -53,7 +61,8 @@ const CartDrawer = ({drawerOpen,toggleCartDrawer}) => {
                 </>
             )}
         </div>
-    </div>
+      </div>
+    </>
   )
 }
 

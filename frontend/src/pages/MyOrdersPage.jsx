@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { fetchUserOrders } from "../redux/slices/orderSlice"
 import Loading from "../components/Common/Loading"
+import { PackageOpen } from "lucide-react"
 
 const MyOrdersPage = () => {
     const navigate = useNavigate()
-
     const dispatch = useDispatch()
     const { orders, loading, error } = useSelector((state) => state.orders)
 
@@ -19,74 +19,84 @@ const MyOrdersPage = () => {
     }
 
     if (loading) return <Loading />
-    if (error) return <p>Error : {error}...</p>
+    if (error) return <p className="text-red-500 font-medium">Lỗi : {error}</p>
 
     return (
-        <div className="max-w-7xl mx-auto p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6">Đơn hàng của tôi</h2>
-            <div className="relative shadow-md sm:rounded-lg overflow-hidden overflow-x-auto">
-                <table className="min-w-full text-left text-gray-500">
-                    <thead className="bg-gray-100 text-xs uppercase text-gray-700">
-                        <tr >
-                            <th className="py-2 px-4 sm:py-3">Hình ảnh</th>
-                            <th className="py-2 px-4 sm:py-3">Order ID</th>
-                            <th className="py-2 px-4 sm:py-3">Tạo</th>
-                            <th className="py-2 px-4 sm:py-3">Địa chỉ giao hàng</th>
-                            <th className="py-2 px-4 sm:py-3">Mặt hàng</th>
-                            <th className="py-2 px-4 sm:py-3">Giá</th>
-                            <th className="py-2 px-4 sm:py-3">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.length > 0 ? (
-                            orders.map((order) => (
-                                <tr key={order._id}
-                                    onClick={() => handleRowClick(order._id)}
-                                    className="border-b hover:border-gray-50 cursor-pointer">
+        <div className="w-full">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">Lịch sử đơn hàng</h2>
+            <div className="bg-white border border-gray-100 shadow-sm rounded-3xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-left text-sm text-gray-600">
+                        <thead className="bg-gray-50/80 text-xs uppercase text-gray-500 font-semibold border-b border-gray-100">
+                            <tr>
+                                <th className="py-4 px-6">Sản phẩm</th>
+                                <th className="py-4 px-6">Mã Đơn</th>
+                                <th className="py-4 px-6">Ngày Đặt</th>
+                                <th className="py-4 px-6">Giao Đến</th>
+                                <th className="py-4 px-6">Tổng Tiền</th>
+                                <th className="py-4 px-6">Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {orders.length > 0 ? (
+                                orders.map((order) => (
+                                    <tr key={order._id}
+                                        onClick={() => handleRowClick(order._id)}
+                                        className="hover:bg-gray-50/80 cursor-pointer transition-colors duration-200">
+                                        
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-4">
+                                                <img src={order.orderItems[0]?.image} alt={order.orderItems[0]?.name}
+                                                    className="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm" />
+                                                {order.orderItems.length > 1 && (
+                                                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                        +{order.orderItems.length - 1} khác
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
 
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        <img src={order.orderItems[0].image} alt={order.orderItems[0].name}
-                                            className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg" />
-                                    </td>
+                                        <td className="py-4 px-6 font-medium text-gray-900">
+                                            #{order._id.substring(0, 8)}...
+                                        </td>
 
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4 font-medium text-gray-900 whitespace-nowrap">
-                                        #{order._id}
-                                    </td>
+                                        <td className="py-4 px-6 whitespace-nowrap">
+                                            {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                                        </td>
 
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        {new Date(order.createdAt).toLocaleDateString()}{" "}
-                                        {new Date(order.createdAt).toLocaleTimeString()}
-                                    </td>
+                                        <td className="py-4 px-6 max-w-[150px] truncate" title={order.shippingAddress?.address}>
+                                            {order.shippingAddress ? order.shippingAddress.address : "N/A"}
+                                        </td>
 
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        {order.shippingAddress ? `${order.shippingAddress.address}` : "N/A"}
-                                    </td>
+                                        <td className="py-4 px-6 font-bold text-gray-900">
+                                            ${order.totalPrice.toLocaleString()}
+                                        </td>
 
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        {order.orderItems.length}
-                                    </td>
-
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        ${order.totalPrice}
-                                    </td>
-
-                                    <td className="py-2 px-2 sm:py-4 sm:px-4">
-                                        <span
-                                            className={`${order.isPaid
-                                                ? "bg-green-100 text-green-700"
-                                                : "bg-red-100 text-red-700"} px-2 py-1 rounded-full text-xs sm:text-sm font-medium`}>
-                                            {order.isPaid ? "Paid" : "Pending"}
-                                        </span>
+                                        <td className="py-4 px-6">
+                                            <span
+                                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                                    ${order.isPaid
+                                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                                                    : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
+                                                {order.isPaid ? "Đã thanh toán" : "Chờ xử lý"}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="py-16 text-center">
+                                        <div className="flex flex-col items-center justify-center text-gray-400">
+                                            <PackageOpen className="w-16 h-16 mb-4 stroke-1" />
+                                            <p className="text-lg font-medium text-gray-600 mb-1">Chưa có đơn hàng nào</p>
+                                            <p className="text-sm">Bạn chưa thực hiện giao dịch nào gần đây.</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={7} className="py-4 px-4 text-center text-gray-500">Bạn không có đơn đặt hàng nào !</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )

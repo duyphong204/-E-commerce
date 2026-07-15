@@ -66,45 +66,52 @@ const CollectionPage = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row">
-      {/* Nút mở bộ lọc (mobile) */}
-      <button
-        onClick={toggleSlidebar}
-        className="lg:hidden border p-2 flex justify-center items-center"
-      >
-        <FaFilter className="mr-2" />
-        Lọc
-      </button>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {/* Nút mở bộ lọc (mobile) */}
+        <button
+          onClick={toggleSlidebar}
+          className="lg:hidden border p-2 flex justify-center items-center rounded-xl bg-white border-gray-200 text-gray-700 font-bold active:scale-95 transition-transform"
+        >
+          <FaFilter className="mr-2" />
+          Lọc
+        </button>
 
-      {/* Sidebar bộ lọc */}
-      <div
-        ref={slidebarRef}
-        className={`${
-          isSlidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 z-50 left-0 w-64 bg-white overflow-y-auto transition-transform duration-300 lg:static lg:translate-x-0`}
-      >
-        <FilterSlideBar />
-      </div>
+        {/* Sidebar bộ lọc */}
+        <div
+          ref={slidebarRef}
+          className={`${
+            isSlidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } fixed inset-y-0 z-50 left-0 w-64 bg-white overflow-y-auto transition-transform duration-300 lg:static lg:translate-x-0 border-r border-gray-100 lg:border-r-0`}
+        >
+          <FilterSlideBar />
+        </div>
 
-      {/* Khu vực hiển thị sản phẩm */}
-      <div className="flex-grow p-4">
-        <h2 className="text-2xl uppercase mb-4">All Collection</h2>
+        {/* Khu vực hiển thị sản phẩm */}
+        <div className="flex-grow p-0">
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-6 sm:mb-8 tracking-tight uppercase">
+            {collection ? `${collection}` : "TẤT CẢ SẢN PHẨM"}
+          </h2>
 
-        {/* Tuỳ chọn sắp xếp */}
-        <SortOptions onSortChange={handleSortChange} />
-        {/* Lưới sản phẩm */}
-        <ProductGrid products={products} loading={loading} error={error} />
-
-        {/* Phân trang */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center">
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+          {/* Tuỳ chọn sắp xếp */}
+          <SortOptions onSortChange={handleSortChange} />
+          
+          {/* Lưới sản phẩm */}
+          <div className="mt-4">
+            <ProductGrid products={products} loading={loading} error={error} />
           </div>
-        )}
+
+          {/* Phân trang */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

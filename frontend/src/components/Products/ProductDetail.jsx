@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 import { NotificationService } from "../../utils/notificationService";
 import ProductGrid from "./ProductGrid";
@@ -17,18 +18,15 @@ const ProductDetail = ({ productId }) => {
   const dispatch = useDispatch();
   const productFetchId = productId || id;
 
-  // Lấy dữ liệu từ Redux
   const { selectedProduct, loading, error, similarProducts } = useSelector((state) => state.products);
   const { user, guestId } = useSelector((state) => state.auth);
   const { items: wishlistItems } = useSelector((state) => state.wishList);
 
-  // State chỉ dùng cho hình ảnh & số lượng / size / color
   const [mainImage, setMainImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  // 1. Fetch sản phẩm + dữ liệu liên quan
   useEffect(() => {
     if (!productFetchId) return;
 
@@ -42,21 +40,18 @@ const ProductDetail = ({ productId }) => {
     if (user) dispatch(fetchWishlist());
   }, [dispatch, productFetchId, user]);
 
-  // 2. Đặt ảnh chính mặc định
   useEffect(() => {
     if (selectedProduct?.images?.[0]?.url) {
       setMainImage(selectedProduct.images[0].url);
     }
   }, [selectedProduct]);
 
-  // 3. Xử lý thay đổi số lượng
   const handleQuantityChange = (action) => {
     setQuantity((prev) =>
       action === "plus" ? prev + 1 : prev > 1 ? prev - 1 : prev
     );
   };
 
-  // 4. Thêm vào giỏ hàng 
   const handleAddToCart = async () => {
     try {
       await dispatch(
@@ -75,7 +70,6 @@ const ProductDetail = ({ productId }) => {
     }
   };
 
-  // 5. Chuyển đổi yêu thích (Optimistic UI)
   const handleToggleWishlist = async () => {
     if (!user) {
       NotificationService.warning("Vui lòng đăng nhập để yêu thích.");
@@ -99,79 +93,113 @@ const ProductDetail = ({ productId }) => {
     ? wishlistItems.some(item => item._id === productFetchId)
     : false;
 
-  // 6. Loading / Error / Empty
   if (loading) return <Loading />;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (error) return <div className="p-6 text-red-500 text-center font-semibold">{error}</div>;
   if (!selectedProduct) return null;
 
-  // 7. Render giao diện
   return (
-    <div className="p-6">
-      <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex flex-col md:flex-row md:w-1/2">
-            <div className="hidden md:flex flex-col space-y-4 mr-6">
-              {selectedProduct.images?.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.url}
-                  alt={image.altText || `Thumbnail ${index}`}
-                  loading="lazy"
-                  decoding="async"
-                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border transition
-                    ${mainImage === image.url ? "border-black" : "border-gray-300"}`}
-                  onClick={() => setMainImage(image.url)}
-                />
-              ))}
+    <div className="min-h-screen bg-gray-50/50 py-6 sm:py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Modern Breadcrumbs */}
+        <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-400 font-bold mb-6 sm:mb-8">
+          <Link to="/" className="hover:text-emerald-600 transition-colors">Trang chủ</Link>
+          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+          <Link to="/collections/all" className="hover:text-emerald-600 transition-colors">Bộ sưu tập</Link>
+          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+          <span className="text-gray-900 truncate max-w-[150px] sm:max-w-[250px]">{selectedProduct.name}</span>
+        </div>
+
+        {/* Main Details Section */}
+        <div className="bg-white rounded-2xl md:rounded-[2.5rem] border border-gray-100 shadow-sm p-4 sm:p-8 lg:p-12 mb-10 transition-all duration-300 hover:shadow-md">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+            
+            {/* Image Columns */}
+            <div className="flex flex-col md:flex-row lg:w-1/2 gap-4 sm:gap-6">
+              
+              {/* Desktop Thumbnails Left */}
+              <div className="hidden md:flex flex-col gap-3.5">
+                {selectedProduct.images?.map((image, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setMainImage(image.url)}
+                    className={`w-16 h-16 lg:w-20 lg:h-20 rounded-xl lg:rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 p-0.5 bg-white
+                      ${mainImage === image.url ? "border-emerald-500 scale-105 shadow-sm" : "border-gray-100 hover:border-gray-300"}`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.altText || `Thumbnail ${index}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover rounded-lg lg:rounded-xl"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Main Image Center */}
+              <div className="flex-1 rounded-xl sm:rounded-[2rem] overflow-hidden bg-gray-50 border border-gray-100 aspect-[4/5] relative group max-h-[480px] lg:max-h-[520px] mx-auto w-full">
+                {mainImage && (
+                  <img
+                    src={mainImage}
+                    alt="Main product representation"
+                    className="w-full h-full object-cover transition-transform duration-[1s] group-hover:scale-105"
+                    loading="lazy"
+                  />
+                )}
+              </div>
+
+              {/* Mobile Thumbnails Scrollable */}
+              <div className="md:hidden flex overflow-x-auto gap-3 py-1 scrollbar-none">
+                {selectedProduct.images?.map((image, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setMainImage(image.url)}
+                    className={`w-14 h-14 rounded-lg overflow-hidden cursor-pointer border-2 flex-shrink-0 transition-all p-0.5
+                      ${mainImage === image.url ? "border-emerald-500 scale-105 shadow-sm" : "border-gray-100"}`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={`Thumbnail ${index}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="md:flex-1">
-              {mainImage && (
-                <img
-                  src={mainImage}
-                  alt="Main product"
-                  className="w-full h-auto object-cover rounded-lg"
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
+
+            {/* Options & Configuration Panel */}
+            <div className="lg:w-1/2 flex flex-col justify-between">
+              <ProductOptions
+                product={selectedProduct}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+                selectedSize={selectedSize}
+                setSelectedSize={setSelectedSize}
+                quantity={quantity}
+                handleQuantityChange={handleQuantityChange}
+                handleAddToCart={handleAddToCart}
+                isInWishlist={isInWishlist}
+                handleToggleWishlist={handleToggleWishlist}
+              />
             </div>
-            <div className="md:hidden flex overflow-x-scroll space-x-4 mt-4 pb-4">
-              {selectedProduct.images?.map((image, index) => (
-                <img
-                  key={index}
-                  src={image.url}
-                  alt={`Thumbnail ${index}`}
-                  loading="lazy"
-                  decoding="async"
-                  className={`w-20 h-20 flex-shrink-0 object-cover rounded-lg cursor-pointer border
-                    ${mainImage === image.url ? "border-black" : "border-gray-300"}`}
-                  onClick={() => setMainImage(image.url)}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="md:w-1/2 md:ml-10">
-            <ProductOptions
-              product={selectedProduct}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-              selectedSize={selectedSize}
-              setSelectedSize={setSelectedSize}
-              quantity={quantity}
-              handleQuantityChange={handleQuantityChange}
-              handleAddToCart={handleAddToCart}
-              isInWishlist={isInWishlist}
-              handleToggleWishlist={handleToggleWishlist}
-            />
+
           </div>
         </div>
-        <div className="mt-10">
+
+        {/* Reviews Section */}
+        <div className="mb-12">
           <ProductReviews productId={productFetchId} user={user} />
         </div>
-        <div className="mt-20">
-          <h2 className="text-2xl text-center font-medium mb-4">You May Also Like</h2>
+
+        {/* Similar Products Carousel */}
+        <div>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 mb-6 sm:mb-8 tracking-tight text-center sm:text-left">
+            Có thể bạn cũng thích
+          </h2>
           <ProductGrid products={similarProducts} loading={loading} error={error} />
         </div>
+
       </div>
     </div>
   );
