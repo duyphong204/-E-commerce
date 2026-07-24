@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './' ,
+  base: "/",
   define: {
     global: "globalThis",
   },
@@ -23,13 +23,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-redux': ['react-redux', '@reduxjs/toolkit'],
-          'vendor-charts': ['recharts'], 
-          'vendor-pdf': ['html2canvas', 'jspdf', 'dompurify'],
-          'vendor-ui': ['lucide-react', 'react-icons', 'swiper']
-        }
-      }
-    }
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-redux": ["react-redux", "@reduxjs/toolkit"],
+          "vendor-charts": ["recharts"],
+          "vendor-pdf": ["jspdf", "jspdf-autotable"],
+          "vendor-ui": ["lucide-react", "react-icons", "swiper"],
+        },
+      },
+    },
   },
 });
