@@ -8,6 +8,7 @@ import { NotificationService } from "../../utils/notificationService";
 import { Loading } from "@/shared/components/feedback/Loading";
 import { ShippingAddress } from "../../types";
 import { getErrorMessage } from "@/shared/utils/error-utils";
+import { useValidateCoupon } from "@/features/coupons";
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -20,6 +21,9 @@ export function Checkout() {
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [couponCode, setCouponCode] = useState<string>("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discountAmount: number } | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const { mutateAsync: validateCoupon, isPending: isValidatingCoupon } = useValidateCoupon();
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
@@ -37,6 +41,38 @@ export function Checkout() {
     }
   }, [cart, navigate]);
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      NotificationService.error("Vui lòng nhập mã giảm giá");
+      return;
+    }
+    if (!user?._id) {
+      NotificationService.error("Vui lòng đăng nhập để áp dụng mã giảm giá");
+      return;
+    }
+
+    try {
+      const response = await validateCoupon({
+        code: couponCode.trim(),
+        userId: user._id,
+        totalPrice: cart?.totalPrice || 0,
+      });
+
+      setAppliedCoupon({
+        id: response.couponId,
+        code: response.code,
+        discountAmount: response.discountAmount,
+      });
+      setDiscountAmount(response.discountAmount);
+      NotificationService.success(response.message || "Áp dụng mã giảm giá thành công!");
+    } catch (err: unknown) {
+      NotificationService.error(getErrorMessage(err, "Không thể áp dụng mã giảm giá"));
+    }
+  };
+
+  const cartTotalPrice = cart?.totalPrice || 0;
+  const finalTotal = Math.max(cartTotalPrice - discountAmount, 0);
+
   const handleCreateCheckout = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (isSubmitting || !cart?.products?.length) return;
@@ -47,7 +83,9 @@ export function Checkout() {
         checkoutItems: cart.products,
         shippingAddress,
         paymentMethod: "PayPal",
-        totalPrice: cart.totalPrice,
+        totalPrice: finalTotal,
+        couponCode: appliedCoupon?.code,
+        couponId: appliedCoupon?.id,
       };
 
       const result = await createCheckout(payload);
@@ -75,9 +113,6 @@ export function Checkout() {
       NotificationService.error(getErrorMessage(error, "Thanh toán thất bại. Vui lòng thử lại."));
     }
   };
-
-  const cartTotalPrice = cart?.totalPrice || 0;
-  const finalTotal = cartTotalPrice;
 
   if (cartLoading && !cart) return <Loading />;
   if (cartError) return <p className="text-center py-12 text-red-600">Lỗi: {getErrorMessage(cartError)}</p>;
@@ -252,17 +287,33 @@ export function Checkout() {
               onChange={(e) => setCouponCode(e.target.value)}
               placeholder="Mã giảm giá"
               className="w-[80%] p-3 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
-              disabled={!!checkoutId}
+              disabled={!!checkoutId || !!appliedCoupon}
             />
-            <button
-              type="button"
-              disabled={!!checkoutId}
-              className={`px-2 py-3 rounded-lg font-medium whitespace-nowrap text-white transition-all ${
-                !!checkoutId ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
-              }`}
-            >
-              Áp dụng
-            </button>
+            {appliedCoupon ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setAppliedCoupon(null);
+                  setDiscountAmount(0);
+                  setCouponCode("");
+                }}
+                disabled={!!checkoutId}
+                className="px-4 py-3 rounded-lg font-medium whitespace-nowrap text-white bg-red-600 hover:bg-red-700 transition-all"
+              >
+                Hủy
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={!!checkoutId || isValidatingCoupon}
+                className={`px-2 py-3 rounded-lg font-medium whitespace-nowrap text-white transition-all ${
+                  !!checkoutId || isValidatingCoupon ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+                }`}
+              >
+                {isValidatingCoupon ? "..." : "Áp dụng"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -271,6 +322,13 @@ export function Checkout() {
             <span>Tổng phụ</span>
             <span className="font-medium">${cartTotalPrice.toLocaleString()}</span>
           </div>
+
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Giảm giá ({appliedCoupon?.code})</span>
+              <span className="font-medium">-${discountAmount.toLocaleString()}</span>
+            </div>
+          )}
 
           <div className="flex justify-between">
             <span>Vận chuyển</span>

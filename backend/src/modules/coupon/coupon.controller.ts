@@ -35,9 +35,7 @@ export class CouponController {
 
   // Admin Methods
   getAllCoupons = catchAsync(async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const result = await this.couponService.getAllCoupons(page, limit);
+    const result = await this.couponService.getAllCoupons();
     return res.json(result);
   });
 

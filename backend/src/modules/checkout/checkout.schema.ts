@@ -13,9 +13,9 @@ export const checkoutItemSchema = z.object({
 export const shippingAddressSchema = z.object({
   address: z.string().min(1, "Địa chỉ là bắt buộc"),
   city: z.string().min(1, "Thành phố là bắt buộc"),
-  postalCode: z.string().trim().regex(/^\d{6}$/, "Mã bưu chính phải đủ 6 chữ số."),
+  postalCode: z.string().trim().regex(/^\d{5,6}$/, "Mã bưu chính phải gồm 5 hoặc 6 chữ số."),
   country: z.string().min(1, "Quốc gia là bắt buộc"),
-  phone: z.string().trim().regex(/^0\d{9}$/, "Số điện thoại không hợp lệ"),
+  phone: z.string().trim().regex(/^(?:\+?84|0)\d{9,10}$/, "Số điện thoại không hợp lệ"),
 });
 
 export const createCheckoutSchema = z.object({

@@ -35,7 +35,7 @@ export function Login() {
     setLoading(true);
     try {
       const response = await loginApi({ email, password });
-      setAuth(response.user, response.token);
+      setAuth(response.user, response.token || response.accessToken);
       const userName = response.user.name || "bạn";
       NotificationService.success(`Chào mừng ${userName} trở lại!`);
 

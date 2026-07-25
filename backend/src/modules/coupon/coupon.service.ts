@@ -112,14 +112,8 @@ export class CouponService {
   }
 
   // Admin Methods
-  async getAllCoupons(page: number, limit: number) {
-    const data = await this.couponRepository.findPaginated({}, page, limit, { createdAt: -1 });
-    return {
-      coupons: data.results,
-      page: data.page,
-      totalPages: data.totalPages,
-      totalItems: data.totalItems,
-    };
+  async getAllCoupons() {
+    return this.couponRepository.findAll();
   }
 
   async createCoupon(data: CreateCouponInput) {

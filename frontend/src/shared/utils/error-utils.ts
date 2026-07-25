@@ -2,12 +2,19 @@ import axios from 'axios';
 
 export function getErrorMessage(error: unknown, defaultMessage = "Có lỗi xảy ra, vui lòng thử lại"): string {
   if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      defaultMessage
-    );
+    const responseData = error.response?.data;
+    if (responseData) {
+      if (Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+        return responseData.errors.map((err: any) => err.message).join(", ");
+      }
+      return (
+        responseData.message ||
+        responseData.error ||
+        error.message ||
+        defaultMessage
+      );
+    }
+    return error.message || defaultMessage;
   }
   if (error instanceof Error) {
     return error.message;

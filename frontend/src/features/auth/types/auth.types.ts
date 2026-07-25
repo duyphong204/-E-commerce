@@ -4,6 +4,7 @@ import { AsyncStatus } from '@/types';
 export interface AuthResponse {
   user: AuthUser;
   token?: string;
+  accessToken?: string;
   message?: string;
 }
 

@@ -58,4 +58,8 @@ export class CouponRepository {
       { $inc: { usedCount: 1 } }
     );
   }
+
+  async findAll(sort: any = { createdAt: -1 }) {
+    return Coupon.find({}).sort(sort);
+  }
 }

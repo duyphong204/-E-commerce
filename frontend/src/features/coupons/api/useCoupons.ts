@@ -1,11 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCouponsApi, createCouponApi, updateCouponApi, deleteCouponApi, toggleCouponStatusApi } from './couponApi';
+import {
+  getCouponsApi,
+  createCouponApi,
+  updateCouponApi,
+  deleteCouponApi,
+  toggleCouponStatusApi,
+  validateCouponApi,
+} from './couponApi';
 import { CreateCouponPayload, UpdateCouponPayload } from '@/types';
 
 export function useCoupons() {
   return useQuery({
     queryKey: ['coupons'],
     queryFn: ({ signal }) => getCouponsApi(signal),
+  });
+}
+
+export function useValidateCoupon() {
+  return useMutation({
+    mutationFn: validateCouponApi,
   });
 }
 

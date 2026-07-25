@@ -127,14 +127,17 @@ export class ProductService {
     const lowStockCount = await this.productRepository.count({ countInStock: { $lt: 10 } });
 
     return {
-      ...data,
+      products: data.results,
+      page: data.page,
+      totalPages: data.totalPages,
+      totalItems: data.totalItems,
       statistics: { activeCount, lowStockCount }
     };
   }
 
   async searchProductsAdmin(term: string, page: number, limit: number) {
     if (!term.trim()) {
-      return { results: [], page: 1, totalPages: 1, totalItems: 0, statistics: { activeCount: 0, lowStockCount: 0 } };
+      return { products: [], page: 1, totalPages: 1, totalItems: 0, statistics: { activeCount: 0, lowStockCount: 0 } };
     }
 
     const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -153,7 +156,10 @@ export class ProductService {
     const lowStockCount = await this.productRepository.count({ countInStock: { $lt: 10 } });
 
     return {
-      ...data,
+      products: data.results,
+      page: data.page,
+      totalPages: data.totalPages,
+      totalItems: data.totalItems,
       statistics: { activeCount, lowStockCount }
     };
   }
