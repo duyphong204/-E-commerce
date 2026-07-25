@@ -1,7 +1,6 @@
 import React from "react";
 import { RiDeleteBin3Line } from "react-icons/ri";
-import { removeFromCart, updateCartItemQuantity } from "../../redux/slices/cartSlice";
-import { useAppDispatch } from "../../redux/store";
+import { useCartMutations, useCartParams } from "@/features/cart";
 import { Cart } from "../../types";
 
 interface CartContentsProps {
@@ -10,11 +9,11 @@ interface CartContentsProps {
   guestId?: string;
 }
 
-const CartContents: React.FC<CartContentsProps> = ({ cart, userId, guestId }) => {
-  const dispatch = useAppDispatch();
+export function CartContents({ cart }: CartContentsProps) {
+  const cartParams = useCartParams();
+  const { updateCartItem, removeFromCart } = useCartMutations();
 
-  // Tăng/giảm số lượng
-  const handleAddToCart = (
+  const handleUpdateQuantity = (
     productId: string,
     delta: number,
     quantity: number,
@@ -23,30 +22,12 @@ const CartContents: React.FC<CartContentsProps> = ({ cart, userId, guestId }) =>
   ): void => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1) {
-      dispatch(
-        updateCartItemQuantity({
-          productId,
-          quantity: newQuantity,
-          size,
-          color,
-          userId: userId || undefined,
-          guestId,
-        })
-      );
+      updateCartItem({ productId, quantity: newQuantity, size, color, ...cartParams });
     }
   };
 
-  // Xóa sản phẩm
   const handleRemoveFromCart = (productId: string, size: string, color: string): void => {
-    dispatch(
-      removeFromCart({
-        productId,
-        size,
-        color,
-        userId: userId || undefined,
-        guestId,
-      })
-    );
+    removeFromCart({ productId, size, color, ...cartParams });
   };
 
   if (!cart?.products?.length) return <p className="text-center py-8">Giỏ hàng trống</p>;
@@ -73,7 +54,7 @@ const CartContents: React.FC<CartContentsProps> = ({ cart, userId, guestId }) =>
               <div className="flex items-center mt-2">
                 <button
                   onClick={() =>
-                    handleAddToCart(
+                    handleUpdateQuantity(
                       product.productId,
                       -1,
                       product.quantity,
@@ -89,7 +70,7 @@ const CartContents: React.FC<CartContentsProps> = ({ cart, userId, guestId }) =>
                 <span className="mx-4 font-semibold">{product.quantity}</span>
                 <button
                   onClick={() =>
-                    handleAddToCart(
+                    handleUpdateQuantity(
                       product.productId,
                       1,
                       product.quantity,
@@ -121,6 +102,6 @@ const CartContents: React.FC<CartContentsProps> = ({ cart, userId, guestId }) =>
       ))}
     </div>
   );
-};
+}
 
 export default CartContents;

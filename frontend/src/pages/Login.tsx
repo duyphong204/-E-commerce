@@ -1,23 +1,21 @@
-import React, { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import loginImg from "../../assets/login.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { loginUser } from "../redux/slices/authSlice";
-import { mergeCart } from "../redux/slices/cartSlice";
+import { loginApi, useAuthStore } from "@/features/auth";
 import { NotificationService } from "../utils/notificationService";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
-const Login: React.FC = () => {
+export function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, guestId, loading } = useAppSelector((state) => state.auth);
-  const { cart } = useAppSelector((state) => state.cart);
+  const { user, setAuth } = useAuthStore();
 
   const redirect = new URLSearchParams(location.search).get("redirect") || "/";
   const isCheckoutRedirect = redirect.includes("checkout");
@@ -25,29 +23,31 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (user) {
       if (user.role === "admin") {
-        navigate("/admin");
-        return;
-      }
-      if (cart && cart.products.length > 0 && guestId) {
-        dispatch(mergeCart({ guestId, user })).then(() => {
-          navigate(isCheckoutRedirect ? "/checkout" : "/");
-        });
+        navigate("/admin", { replace: true });
       } else {
-        navigate(isCheckoutRedirect ? "/checkout" : "/");
+        navigate(isCheckoutRedirect ? "/checkout" : "/", { replace: true });
       }
     }
-  }, [user, guestId, cart, navigate, isCheckoutRedirect, dispatch]);
+  }, [user, navigate, isCheckoutRedirect]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const resultAction = await dispatch(loginUser({ email, password })).unwrap();
-      const userName = resultAction.name || "bạn";
+      const response = await loginApi({ email, password });
+      setAuth(response.user, response.token);
+      const userName = response.user.name || "bạn";
       NotificationService.success(`Chào mừng ${userName} trở lại!`);
+
+      if (response.user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate(isCheckoutRedirect ? "/checkout" : "/", { replace: true });
+      }
     } catch (error: unknown) {
-      const errObj = error as { message?: string };
-      const errorMessage = errObj.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại.";
-      NotificationService.error(errorMessage);
+      NotificationService.error(getErrorMessage(error, "Đăng nhập thất bại. Vui lòng kiểm tra lại."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,6 +161,6 @@ const Login: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Login;

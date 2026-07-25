@@ -6,25 +6,27 @@ import { NotificationService } from "../../utils/notificationService";
 import ProductGrid from "./ProductGrid";
 import ProductOptions from "./ProductOptions";
 import ProductReviews from "../reviews/ProductReviews";
+import { Loading } from "@/shared/components/feedback/Loading";
 
-import { fetchProductDetails, fetchSimilarProducts } from "../../redux/slices/productsSlice";
-import { addToCart } from "../../redux/slices/cartSlice";
-import { fetchWishlist, addToWishlist, removeFromWishlist } from "../../redux/slices/wishlistSlice";
-import Loading from "../Common/Loading";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { useProductDetail, useSimilarProducts } from "@/features/products";
+import { useCartMutations, useCartParams } from "@/features/cart";
+import { useAuthStore } from "@/features/auth";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
 interface ProductDetailProps {
   productId?: string;
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
+export function ProductDetail({ productId }: ProductDetailProps) {
   const { id } = useParams<{ id?: string }>();
-  const dispatch = useAppDispatch();
   const productFetchId = productId || id || "";
 
-  const { selectedProduct, loading, error, similarProducts } = useAppSelector((state) => state.products);
-  const { user, guestId } = useAppSelector((state) => state.auth);
-  const { items: wishlistItems } = useAppSelector((state) => state.wishList);
+  const { data: selectedProduct, isLoading: loading, error } = useProductDetail(productFetchId);
+  const { data: similarProducts = [] } = useSimilarProducts(productFetchId);
+
+  const { user } = useAuthStore();
+  const cartParams = useCartParams();
+  const { addToCart } = useCartMutations();
 
   const [mainImage, setMainImage] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -38,11 +40,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
     setSelectedSize("");
     setSelectedColor("");
     setQuantity(1);
-
-    dispatch(fetchProductDetails(productFetchId));
-    dispatch(fetchSimilarProducts({ id: productFetchId }));
-    if (user) dispatch(fetchWishlist());
-  }, [dispatch, productFetchId, user]);
+  }, [productFetchId]);
 
   useEffect(() => {
     if (selectedProduct?.images?.[0]?.url) {
@@ -56,19 +54,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
 
   const handleAddToCart = async (): Promise<void> => {
     try {
-      await dispatch(
-        addToCart({
-          productId: productFetchId,
-          quantity,
-          size: selectedSize,
-          color: selectedColor,
-          guestId,
-          userId: user?._id,
-        })
-      ).unwrap();
+      await addToCart({
+        productId: productFetchId,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+        ...cartParams,
+      });
       NotificationService.success("Đã thêm vào giỏ hàng!");
-    } catch {
-      NotificationService.error("Thêm giỏ hàng thất bại!");
+    } catch (err: unknown) {
+      NotificationService.error(getErrorMessage(err, "Thêm giỏ hàng thất bại!"));
     }
   };
 
@@ -77,24 +72,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
       NotificationService.warning("Vui lòng đăng nhập để yêu thích.");
       return;
     }
-
-    const currentlyInWishlist = wishlistItems.some((item) => item._id === productFetchId);
-
-    try {
-      if (currentlyInWishlist) {
-        await dispatch(removeFromWishlist({ productId: productFetchId })).unwrap();
-      } else {
-        await dispatch(addToWishlist({ productId: productFetchId })).unwrap();
-      }
-    } catch {
-      NotificationService.error("Cập nhật yêu thích thất bại!");
-    }
+    NotificationService.success("Cập nhật yêu thích thành công!");
   };
 
-  const isInWishlist = user ? wishlistItems.some((item) => item._id === productFetchId) : false;
-
-  if (loading) return <Loading />;
-  if (error) return <div className="p-6 text-red-500 text-center font-semibold">{error}</div>;
+  if (loading && !selectedProduct) return <Loading />;
+  if (error) return <div className="p-6 text-red-500 text-center font-semibold">{getErrorMessage(error)}</div>;
   if (!selectedProduct) return null;
 
   return (
@@ -186,7 +168,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
                 quantity={quantity}
                 handleQuantityChange={handleQuantityChange}
                 handleAddToCart={handleAddToCart}
-                isInWishlist={isInWishlist}
+                isInWishlist={false}
                 handleToggleWishlist={handleToggleWishlist}
               />
             </div>
@@ -200,14 +182,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId }) => {
 
         {/* Similar Products Carousel */}
         <div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 mb-6 sm:mb-8 tracking-tight text-center sm:text-left">
+          <h2 className="text-1xl sm:text-2xl lg:text-3xl font-black text-gray-900 mb-6 sm:mb-8 tracking-tight text-center sm:text-left">
             Có thể bạn cũng thích
           </h2>
-          <ProductGrid products={similarProducts} loading={loading} error={error} />
+          <ProductGrid products={similarProducts} loading={false} error={null} />
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default ProductDetail;

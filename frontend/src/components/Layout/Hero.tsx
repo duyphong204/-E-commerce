@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Pagination } from "swiper/modules";
-import { fetchActiveBanners } from "../../redux/slices/bannerSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { useBanners } from "@/features/banners";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
@@ -66,22 +65,17 @@ const optimizeCloudinaryUrl = (url: string, { width }: { width?: number } = {}):
   return `${prefix}${transforms.join(",")}/${suffix}`;
 };
 
-const Hero: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { banners } = useAppSelector((state) => state.banners);
-
-  useEffect(() => {
-    dispatch(fetchActiveBanners());
-  }, [dispatch]);
+export function Hero() {
+  const { data: banners = [] } = useBanners();
 
   const images: HeroSlideItem[] = banners.length
-    ? banners.map(({ imageUrl, altText, title, link }) => ({
+    ? banners.map(({ imageUrl, altText, title }) => ({
         src: optimizeCloudinaryUrl(imageUrl, { width: 1600 }),
         alt: altText || title || "Banner",
         title: title || "PHONG CÁCH THỜI THƯỢNG",
         subtitle: altText || "Khám phá các thiết kế mới nhất của Rabbit Shop.",
         cta: "Xem Ngay",
-        link: link || "/collections/all",
+        link: "/collections/all",
       }))
     : FALLBACK_IMAGES;
 
@@ -111,7 +105,6 @@ const Hero: React.FC = () => {
                 className="absolute inset-0 w-full h-full object-cover scale-100 animate-[zoomSlow_15s_infinite_alternate] brightness-75 md:brightness-[0.70]"
                 loading={idx === 0 ? "eager" : "lazy"}
                 decoding="async"
-                fetchPriority={idx === 0 ? "high" : "low"}
               />
 
               {/* Modern Dark Gradient Overlay */}
@@ -160,6 +153,6 @@ const Hero: React.FC = () => {
       </Swiper>
     </section>
   );
-};
+}
 
 export default Hero;

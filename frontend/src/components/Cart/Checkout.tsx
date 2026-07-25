@@ -1,26 +1,21 @@
 import React, { useEffect, useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import PayPalButton from "./PayPalButton";
-import { createCheckout, markCheckoutAsPaid, finalizeCheckout } from "../../redux/slices/checkoutSlice";
-import { validateCoupon, clearCoupon } from "../../redux/slices/couponUserSlice";
+import { useCheckoutMutations } from "@/features/checkout";
+import { useCart, useCartParams } from "@/features/cart";
+import { useAuthStore } from "@/features/auth";
 import { NotificationService } from "../../utils/notificationService";
-import Loading from "../Common/Loading";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Loading } from "@/shared/components/feedback/Loading";
 import { ShippingAddress } from "../../types";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
-const Checkout: React.FC = () => {
-  const dispatch = useAppDispatch();
+export function Checkout() {
   const navigate = useNavigate();
 
-  const { cart, loading: cartLoading, error: cartError } = useAppSelector((state) => state.cart);
-  const { user } = useAppSelector((state) => state.auth);
-  const { checkout: checkoutData, loading: checkoutLoading, error: checkoutError } = useAppSelector(
-    (state) => state.checkout
-  );
-
-  const { coupon, discountAmount, loading: couponLoading, error: couponError } = useAppSelector(
-    (state) => state.couponUser || {}
-  );
+  const cartParams = useCartParams();
+  const { data: cart, isLoading: cartLoading, error: cartError } = useCart(cartParams);
+  const { user } = useAuthStore();
+  const { createCheckout, payCheckout, finalizeCheckout, isCreating: checkoutLoading } = useCheckoutMutations();
 
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -36,34 +31,12 @@ const Checkout: React.FC = () => {
     phone: "",
   });
 
-  /* Redirect nếu giỏ trống */
   useEffect(() => {
     if (!cart || !cart.products || cart.products.length === 0) {
       navigate("/");
     }
   }, [cart, navigate]);
 
-  /* Xóa coupon khi rời trang */
-  useEffect(() => {
-    return () => {
-      dispatch(clearCoupon());
-    };
-  }, [dispatch]);
-
-  /* Áp dụng mã giảm giá */
-  const handleApplyCoupon = async (): Promise<void> => {
-    if (!couponCode.trim() || !user || !cart) return;
-    await dispatch(
-      validateCoupon({
-        code: couponCode.trim().toUpperCase(),
-        totalPrice: cart.totalPrice,
-        userId: user._id,
-      })
-    );
-    setCouponCode("");
-  };
-
-  /* Tạo đơn hàng */
   const handleCreateCheckout = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (isSubmitting || !cart?.products?.length) return;
@@ -75,19 +48,13 @@ const Checkout: React.FC = () => {
         shippingAddress,
         paymentMethod: "PayPal",
         totalPrice: cart.totalPrice,
-        ...(coupon && { couponId: coupon.id, couponCode: coupon.code }),
       };
 
-      const result = await dispatch(createCheckout(payload)).unwrap();
+      const result = await createCheckout(payload);
       setCheckoutId(result._id);
       NotificationService.success("Tạo đơn hàng thành công!");
     } catch (err: unknown) {
-      const errorObj = err as { errors?: string[]; message?: string };
-      if (errorObj?.errors && Array.isArray(errorObj.errors)) {
-        errorObj.errors.forEach((msg) => NotificationService.error(msg));
-      } else {
-        NotificationService.error(errorObj?.message || "Không thể tạo đơn hàng");
-      }
+      NotificationService.error(getErrorMessage(err, "Không thể tạo đơn hàng"));
     } finally {
       setIsSubmitting(false);
     }
@@ -97,47 +64,33 @@ const Checkout: React.FC = () => {
     if (!checkoutId) return;
 
     try {
-      await dispatch(markCheckoutAsPaid({ checkoutId, paymentDetails })).unwrap();
+      await payCheckout({ checkoutId, paymentDetails });
       NotificationService.success("Thanh toán thành công!");
 
-      await dispatch(finalizeCheckout(checkoutId)).unwrap();
+      await finalizeCheckout(checkoutId);
 
       NotificationService.success("Đơn hàng đã được xác nhận!");
       navigate("/order-confirmation");
     } catch (error: unknown) {
-      const errObj = error as { message?: string };
-      NotificationService.error(errObj?.message || "Thanh toán thất bại. Vui lòng thử lại.");
+      NotificationService.error(getErrorMessage(error, "Thanh toán thất bại. Vui lòng thử lại."));
     }
   };
 
-  const appliedDiscount = Math.max(Number(discountAmount) || 0, 0);
-
   const cartTotalPrice = cart?.totalPrice || 0;
-  const finalTotal =
-    checkoutData?.totalPrice ?? Math.max(cartTotalPrice - appliedDiscount, 0);
+  const finalTotal = cartTotalPrice;
 
-  const subtotal = checkoutData?.totalPrice ? checkoutData.totalPrice + appliedDiscount : cartTotalPrice;
-
-  if (cartLoading) return <Loading />;
-  if (cartError) return <p className="text-center py-12 text-red-600">Lỗi: {cartError}</p>;
+  if (cartLoading && !cart) return <Loading />;
+  if (cartError) return <p className="text-center py-12 text-red-600">Lỗi: {getErrorMessage(cartError)}</p>;
   if (!cart?.products?.length) return <p className="text-center py-12">Giỏ hàng của bạn trống.</p>;
 
   return (
     <div className="max-w-7xl mx-auto p-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-      {/* === LEFT: Checkout Form === */}
+      {/* LEFT: Checkout Form */}
       <div className="bg-white rounded-xl shadow-lg p-8">
         <h2 className="text-2xl font-bold uppercase tracking-tight mb-8">Thanh toán</h2>
 
-        {/* Hiển thị lỗi từ backend */}
-        {checkoutError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
-            <p className="font-semibold mb-1">Không thể đặt hàng:</p>
-            <p className="text-sm">{checkoutError}</p>
-          </div>
-        )}
-
         <form onSubmit={handleCreateCheckout} className="space-y-6">
-          {/* === Contact Info === */}
+          {/* Contact Info */}
           <section>
             <h3 className="text-lg font-semibold mb-4">Chi tiết liên hệ</h3>
             <div>
@@ -151,7 +104,7 @@ const Checkout: React.FC = () => {
             </div>
           </section>
 
-          {/* === Shipping Address === */}
+          {/* Shipping Address */}
           <section>
             <h3 className="text-lg font-semibold mb-4">Địa chỉ giao hàng</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -234,7 +187,7 @@ const Checkout: React.FC = () => {
             </div>
           </section>
 
-          {/* === Submit Button / PayPal === */}
+          {/* Submit Button / PayPal */}
           <div className="mt-8">
             {!checkoutId ? (
               <button
@@ -256,8 +209,7 @@ const Checkout: React.FC = () => {
                   amount={finalTotal}
                   onSuccess={handlePaymentSuccess}
                   onError={(err: unknown) => {
-                    const errorObj = err as { message?: string };
-                    NotificationService.error(errorObj?.message || "Thanh toán thất bại");
+                    NotificationService.error(getErrorMessage(err, "Thanh toán thất bại"));
                   }}
                 />
               </div>
@@ -266,7 +218,7 @@ const Checkout: React.FC = () => {
         </form>
       </div>
 
-      {/* === RIGHT: Order Summary === */}
+      {/* RIGHT: Order Summary */}
       <div className="bg-gray-50 rounded-xl shadow-lg p-8">
         <h3 className="text-xl font-bold mb-6">Tóm tắt đơn hàng</h3>
 
@@ -304,36 +256,21 @@ const Checkout: React.FC = () => {
             />
             <button
               type="button"
-              onClick={handleApplyCoupon}
-              disabled={couponLoading || !!checkoutId}
+              disabled={!!checkoutId}
               className={`px-2 py-3 rounded-lg font-medium whitespace-nowrap text-white transition-all ${
-                couponLoading || !!checkoutId ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+                !!checkoutId ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
               }`}
             >
-              {couponLoading ? "..." : "Áp dụng"}
+              Áp dụng
             </button>
           </div>
-
-          {couponError && <p className="text-red-600 mt-2 text-sm">{couponError}</p>}
-          {coupon && (
-            <p className="text-green-600 mt-2 font-medium">
-              Đã áp dụng: {coupon.code} (-${appliedDiscount.toLocaleString()})
-            </p>
-          )}
         </div>
 
         <div className="mt-6 space-y-3 text-lg">
           <div className="flex justify-between">
             <span>Tổng phụ</span>
-            <span className="font-medium">${subtotal.toLocaleString()}</span>
+            <span className="font-medium">${cartTotalPrice.toLocaleString()}</span>
           </div>
-
-          {appliedDiscount > 0 && (
-            <div className="flex justify-between text-green-600 font-medium">
-              <span>Giảm giá</span>
-              <span>-${appliedDiscount.toLocaleString()}</span>
-            </div>
-          )}
 
           <div className="flex justify-between">
             <span>Vận chuyển</span>
@@ -348,6 +285,6 @@ const Checkout: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Checkout;

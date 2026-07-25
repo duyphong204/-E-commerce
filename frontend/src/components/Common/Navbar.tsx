@@ -1,22 +1,24 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, ShoppingBag, Heart, Menu, X } from "lucide-react";
-import { useAppSelector } from "../../redux/store";
+import { useAuthStore } from "@/features/auth";
+import { useCart, useCartParams } from "@/features/cart";
 
 import SearchBar from "./SearchBar";
 import CartDrawer from "../Layout/CartDrawer";
 import WishlistBar from "./WishlistBar";
 
-const Navbar: React.FC = () => {
+export function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState<boolean>(false);
   const [toggleWishlist, setToggleWishlist] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [isCartBouncing, setIsCartBouncing] = useState<boolean>(false);
 
-  const { cart } = useAppSelector((state) => state.cart);
-  const { user } = useAppSelector((state) => state.auth);
-  const { items: wishlistItems } = useAppSelector((state) => state.wishList);
+  const { user } = useAuthStore();
+  const cartParams = useCartParams();
+  const { data: cart } = useCart(cartParams);
+  const wishlistItems: Array<{ _id: string }> = [];
 
   const navigate = useNavigate();
 
@@ -48,7 +50,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* ================= Navbar ================= */}
+      {/* Navbar */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out border-b border-transparent ${
           isScrolled
@@ -86,7 +88,7 @@ const Navbar: React.FC = () => {
 
           {/* Right Icons + Search */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Search - Mobile & Desktop */}
+            {/* Search */}
             <div className="w-[140px] sm:w-[180px] lg:w-[220px]">
               <SearchBar onSearch={handleSearch} />
             </div>
@@ -163,10 +165,9 @@ const Navbar: React.FC = () => {
       {/* Spacer to prevent content jump */}
       <div className="h-[76px] sm:h-[92px]" />
 
-      {/* ================= Mobile Floating Bottom Bar ================= */}
+      {/* Mobile Floating Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-2.5 z-40 md:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
         <div className="flex items-center justify-around">
-          {/* Admin */}
           {user?.role === "admin" && (
             <Link
               to="/admin"
@@ -179,7 +180,6 @@ const Navbar: React.FC = () => {
             </Link>
           )}
 
-          {/* User */}
           <Link
             to="/profile"
             className="flex flex-col items-center text-gray-500 hover:text-emerald-500"
@@ -188,7 +188,6 @@ const Navbar: React.FC = () => {
             <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Tài khoản</span>
           </Link>
 
-          {/* Wishlist */}
           {user && (
             <button
               onClick={() => setToggleWishlist(!toggleWishlist)}
@@ -204,7 +203,6 @@ const Navbar: React.FC = () => {
             </button>
           )}
 
-          {/* Cart */}
           <button
             onClick={() => setDrawerOpen(!drawerOpen)}
             className="flex flex-col items-center text-gray-500 hover:text-emerald-500 relative"
@@ -267,6 +265,6 @@ const Navbar: React.FC = () => {
       </div>
     </>
   );
-};
+}
 
 export default Navbar;

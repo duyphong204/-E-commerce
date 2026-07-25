@@ -18,8 +18,13 @@ export class CartController {
   getCart = catchAsync(async (req: Request, res: Response) => {
     const userId = req.query.userId as string | undefined;
     const guestId = req.query.guestId as string | undefined;
-    const cart = await this.cartService.getCart(userId, guestId);
-    return res.status(200).json(cart);
+    try {
+      const cart = await this.cartService.getCart(userId, guestId);
+      return res.status(200).json(cart);
+    } catch {
+      // Cart not found → return empty cart instead of 404 error
+      return res.status(200).json({ products: [], totalPrice: 0 });
+    }
   });
 
   updateCart = catchAsync(async (req: Request, res: Response) => {

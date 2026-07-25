@@ -126,8 +126,8 @@ const FilterSlideBar: React.FC = () => {
 
   return (
     <div className="space-y-7 pr-2">
-      {/* Header Lọc */}
-      <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+      {/* Header Lọc – chỉ hiển thị trên desktop (mobile header xử lý ở CollectionPage) */}
+      <div className="hidden lg:flex items-center justify-between pb-4 border-b border-gray-100">
         <h3 className="text-lg font-black text-gray-900 tracking-tight">Bộ lọc</h3>
         {hasActiveFilters && (
           <button

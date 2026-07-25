@@ -1,25 +1,35 @@
 import React, { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { addUserMessage, sendMessage, clearMessages } from "../../redux/slices/aiSlice";
 import { MessageCircle, X, Send, Trash2, Bot } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { ChatMessage } from "../../types";
+import apiClient from "@/shared/api/api-client";
 
-const AIChat: React.FC = () => {
+export function AIChat() {
   const [open, setOpen] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
-  const messages = useAppSelector((state) => state.ai.messages);
-  const dispatch = useAppDispatch();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = (): void => {
+  const handleSend = async (): Promise<void> => {
     if (!input.trim()) return;
-    dispatch(addUserMessage(input));
-    dispatch(sendMessage(input));
+    const userText = input.trim();
     setInput("");
+
+    setMessages((prev) => [...prev, { from: "user", text: userText }]);
+
+    try {
+      const { data } = await apiClient.post<{ message?: string }>("/api/ai/chat", { message: userText });
+      const aiReply = data?.message || "Cảm ơn bạn đã nhắn tin! Tôi là trợ lý AI của Rabbit Shop.";
+      setMessages((prev) => [...prev, { from: "bot", text: aiReply }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: "Xin lỗi, hiện tại hệ thống AI đang bận. Vui lòng thử lại sau!" },
+      ]);
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
@@ -43,12 +53,10 @@ const AIChat: React.FC = () => {
       >
         <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-full" />
 
-        {/* Green pulse ring when closed */}
         {!open && (
           <span className="absolute inset-0 rounded-full animate-ping bg-emerald-400 opacity-25 group-hover:opacity-40"></span>
         )}
 
-        {/* Toggle Icons */}
         {open ? (
           <X className="relative z-10 w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform duration-300" />
         ) : (
@@ -134,7 +142,7 @@ const AIChat: React.FC = () => {
 
               {messages.length > 0 && (
                 <button
-                  onClick={() => dispatch(clearMessages())}
+                  onClick={() => setMessages([])}
                   className="mt-2.5 w-full text-[10px] font-bold text-gray-400 hover:text-red-500 flex items-center justify-center gap-1 transition-colors py-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -147,6 +155,6 @@ const AIChat: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 export default AIChat;

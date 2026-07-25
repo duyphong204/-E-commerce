@@ -1,19 +1,18 @@
 import React, { useEffect, useState, FormEvent } from "react";
-import { fetchReviews, createReview, deleteReview } from "../../redux/slices/reviewSlice";
+import apiClient from "@/shared/api/api-client";
 import { NotificationService } from "../../utils/notificationService";
 import { Star, Trash2, Send, MessageSquare } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { User } from "../../types";
+import { User, Review } from "../../types";
 
 interface ProductReviewsProps {
   productId: string;
   user?: User | null;
 }
 
-const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
-  const dispatch = useAppDispatch();
-  const { reviews, loading, error, avgRating } = useAppSelector((state) => state.reviews);
-
+export function ProductReviews({ productId }: ProductReviewsProps) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState<string>("");
   const [hoveredStar, setHoveredStar] = useState<number | null>(null);
@@ -21,49 +20,67 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
   const token = localStorage.getItem("userToken");
   const userInfo: { _id?: string; name?: string } = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
+  const loadReviews = async () => {
+    if (!productId) return;
+    setLoading(true);
+    try {
+      const { data } = await apiClient.get<Review[]>(`/api/reviews/${productId}`);
+      setReviews(Array.isArray(data) ? data : []);
+    } catch {
+      setError("Không thể tải đánh giá");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (productId) dispatch(fetchReviews({ productId }));
-  }, [productId, dispatch]);
+    loadReviews();
+  }, [productId]);
+
+  const avgRating = reviews.length
+    ? reviews.reduce((acc, item) => acc + item.rating, 0) / reviews.length
+    : 0;
 
   const myReview = reviews.find((r) => r.user?._id === userInfo?._id);
   const canSubmit = !myReview;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (!token) return NotificationService.error("Bạn cần đăng nhập để đánh giá!");
     if (!canSubmit) return NotificationService.error("Bạn chỉ được đánh giá 1 lần");
     if (!comment.trim()) return NotificationService.error("Vui lòng viết nhận xét.");
 
-    dispatch(createReview({ productId, reviewData: { rating, comment } }))
-      .unwrap()
-      .then(() => {
-        NotificationService.success("Đánh giá gửi thành công");
-        setRating(5);
-        setComment("");
-      })
-      .catch((err: { message?: string }) => {
-        NotificationService.error(err?.message || "Gửi đánh giá thất bại");
-      });
-  };
-
-  const handleDelete = (id: string): void => {
-    if (!token) return NotificationService.error("Bạn cần đăng nhập để xóa!");
-    if (window.confirm("Bạn có chắc muốn xóa đánh giá này?")) {
-      dispatch(deleteReview({ reviewId: id }))
-        .unwrap()
-        .then(() => NotificationService.success("Đã xóa đánh giá"))
-        .catch((err: { message?: string }) => NotificationService.error(err?.message || "Xóa đánh giá thất bại"));
+    try {
+      await apiClient.post(`/api/reviews/${productId}`, { rating, comment });
+      NotificationService.success("Đánh giá gửi thành công");
+      setRating(5);
+      setComment("");
+      loadReviews();
+    } catch (err: unknown) {
+      const errObj = err as { response?: { data?: { message?: string } } };
+      NotificationService.error(errObj.response?.data?.message || "Gửi đánh giá thất bại");
     }
   };
 
-  // Tính toán phân bổ số sao
+  const handleDelete = async (id: string): Promise<void> => {
+    if (!token) return NotificationService.error("Bạn cần đăng nhập để xóa!");
+    if (window.confirm("Bạn có chắc muốn xóa đánh giá này?")) {
+      try {
+        await apiClient.delete(`/api/reviews/${id}`);
+        NotificationService.success("Đã xóa đánh giá");
+        loadReviews();
+      } catch {
+        NotificationService.error("Xóa đánh giá thất bại");
+      }
+    }
+  };
+
   const distribution = [5, 4, 3, 2, 1].map((star) => {
     const count = reviews.filter((r) => r.rating === star).length;
     const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
     return { star, count, percentage };
   });
 
-  // Tạo avatar từ tên
   const getAvatarColor = (name?: string): string => {
     const colors = [
       "bg-emerald-100 text-emerald-700",
@@ -79,7 +96,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
   return (
     <div className="bg-white rounded-[2.5rem] border border-gray-100 p-6 sm:p-10 lg:p-12 shadow-sm">
       <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-        {/* Rating Overview & Progress Bars */}
+        {/* Rating Overview */}
         <div className="lg:w-2/5 space-y-6">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-2">Đánh Giá Khách Hàng</h2>
@@ -90,7 +107,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
               <span className="text-gray-400 text-sm font-bold">trên 5</span>
             </div>
 
-            {/* Stars summary */}
             <div className="flex items-center gap-1 mt-2">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isHalf = avgRating && star - 0.5 <= avgRating && star > avgRating;
@@ -112,7 +128,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
             </div>
           </div>
 
-          {/* Progress Bars */}
           <div className="space-y-2.5 pt-4 border-t border-gray-50">
             {distribution.map(({ star, count, percentage }) => (
               <div key={star} className="flex items-center text-sm font-semibold text-gray-600">
@@ -131,9 +146,8 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
           </div>
         </div>
 
-        {/* Reviews List & Write Review */}
+        {/* Reviews List */}
         <div className="lg:w-3/5 space-y-8">
-          {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-50 pb-4">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-emerald-500" />
@@ -141,7 +155,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
             </h3>
           </div>
 
-          {/* List content */}
           <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
             {loading && <p className="text-sm text-gray-500">Đang tải...</p>}
             {error && <p className="text-sm text-red-500">{error}</p>}
@@ -163,7 +176,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
                 <div key={r._id} className="group border-b border-gray-50 pb-5 last:border-0 last:pb-0 transition-all duration-300">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      {/* Avatar initials */}
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm ${getAvatarColor(
                           userName
@@ -180,7 +192,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
                       </div>
                     </div>
 
-                    {/* Ratings */}
                     <div className="flex items-center gap-2">
                       <div className="flex">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -193,7 +204,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
                         ))}
                       </div>
 
-                      {/* Delete button (owner only) */}
                       {userInfo && r.user?._id === userInfo._id && (
                         <button
                           onClick={() => handleDelete(r._id)}
@@ -211,12 +221,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
             })}
           </div>
 
-          {/* Form write review */}
           {token && canSubmit && (
             <form onSubmit={handleSubmit} className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-4">
               <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Viết nhận xét của bạn</h4>
 
-              {/* Interactive Stars Selector */}
               <div className="flex items-center gap-3">
                 <span className="text-xs font-bold text-gray-500">Đánh giá của bạn:</span>
                 <div className="flex gap-1">
@@ -241,7 +249,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
                 </div>
               </div>
 
-              {/* Textarea comment */}
               <div className="relative">
                 <textarea
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
@@ -261,7 +268,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
             </form>
           )}
 
-          {/* Message if reviewed already */}
           {!canSubmit && token && (
             <div className="bg-gray-50 p-4 rounded-xl text-center">
               <p className="text-gray-500 text-xs font-bold">Bạn đã gửi đánh giá cho sản phẩm này.</p>
@@ -271,6 +277,6 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
       </div>
     </div>
   );
-};
+}
 
 export default ProductReviews;

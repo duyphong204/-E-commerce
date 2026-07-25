@@ -1,15 +1,12 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import MyOrdersPage from "./MyOrdersPage";
 import { useNavigate } from "react-router-dom";
-import { clearCart } from "../redux/slices/cartSlice";
-import { logoutUser } from "../redux/slices/authSlice";
 import { LogOut, User as UserIcon } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useAuthStore } from "@/features/auth";
 
-const Profile: React.FC = () => {
-  const { user } = useAppSelector((state) => state.auth);
+export function Profile() {
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!user) {
@@ -18,8 +15,7 @@ const Profile: React.FC = () => {
   }, [user, navigate]);
 
   const handleLogout = (): void => {
-    dispatch(logoutUser());
-    dispatch(clearCart());
+    logout();
     navigate("/login");
   };
 
@@ -56,6 +52,6 @@ const Profile: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Profile;

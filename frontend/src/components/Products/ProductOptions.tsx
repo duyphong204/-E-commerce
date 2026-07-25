@@ -77,7 +77,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       <div>
         <p className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-3">Màu sắc:</p>
         <div className="flex gap-3">
-          {product.colors?.map((color) => (
+          {product.colors?.map((color: string) => (
             <button
               key={color}
               onClick={() => !isOutOfStock && setSelectedColor(color)}
@@ -105,7 +105,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       <div>
         <p className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-3">Kích thước:</p>
         <div className="flex gap-2.5">
-          {product.sizes?.map((size) => (
+          {product.sizes?.map((size: string) => (
             <button
               key={size}
               onClick={() => !isOutOfStock && setSelectedSize(size)}

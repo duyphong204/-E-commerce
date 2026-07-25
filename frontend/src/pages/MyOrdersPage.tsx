@@ -1,26 +1,20 @@
-import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchUserOrders } from "../redux/slices/orderSlice";
-import Loading from "../components/Common/Loading";
+import { useMyOrders } from "@/features/orders";
+import { Loading } from "@/shared/components/feedback/Loading";
 import { PackageOpen } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/store";
 import { Order } from "../types";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
-const MyOrdersPage: React.FC = () => {
+export function MyOrdersPage() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { orders, loading, error } = useAppSelector((state) => state.orders);
-
-  useEffect(() => {
-    dispatch(fetchUserOrders());
-  }, [dispatch]);
+  const { data: orders = [], isLoading: loading, error } = useMyOrders();
 
   const handleRowClick = (orderId: string): void => {
     navigate(`/order/${orderId}`);
   };
 
-  if (loading) return <Loading />;
-  if (error) return <p className="text-red-500 font-medium">Lỗi : {error}</p>;
+  if (loading && !orders.length) return <Loading />;
+  if (error) return <p className="text-red-500 font-medium">Lỗi : {getErrorMessage(error)}</p>;
 
   return (
     <div className="w-full">
@@ -107,6 +101,6 @@ const MyOrdersPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default MyOrdersPage;

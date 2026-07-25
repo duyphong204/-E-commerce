@@ -1,19 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, FreeMode } from "swiper/modules";
 import fallback from "../../../assets/fallback.png";
 import "swiper/css";
-import { fetchNewArrivalsProducts } from "../../redux/slices/productsSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { useNewArrivals } from "@/features/products";
 
-const NewArrivals: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { newArrivalsProducts: products, loading } = useAppSelector((state) => state.products);
-
-  useEffect(() => {
-    dispatch(fetchNewArrivalsProducts());
-  }, [dispatch]);
+export function NewArrivals() {
+  const { data: products = [], isLoading: loading } = useNewArrivals();
 
   const hasEnoughSlides = products.length >= 3;
 
@@ -84,6 +78,6 @@ const NewArrivals: React.FC = () => {
       </div>
     </section>
   );
-};
+}
 
 export default NewArrivals;

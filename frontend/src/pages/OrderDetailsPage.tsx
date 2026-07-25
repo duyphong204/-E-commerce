@@ -1,24 +1,16 @@
-import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchOrderDetails } from "../redux/slices/orderSlice";
-import Loading from "../components/Common/Loading";
+import { useOrderDetails } from "@/features/orders";
+import { Loading } from "@/shared/components/feedback/Loading";
 import { ChevronLeft, MapPin, CreditCard, Box } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../redux/store";
 import { OrderItem } from "../types";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
-const OrderDetailsPage: React.FC = () => {
+export function OrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
-  const dispatch = useAppDispatch();
-  const { orderDetails, loading, error } = useAppSelector((state) => state.orders);
+  const { data: orderDetails, isLoading: loading, error } = useOrderDetails(id || "");
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchOrderDetails(id));
-    }
-  }, [dispatch, id]);
-
-  if (loading) return <Loading />;
-  if (error) return <p className="text-center text-red-500 font-medium my-10">Lỗi : {error}</p>;
+  if (loading && !orderDetails) return <Loading />;
+  if (error) return <p className="text-center text-red-500 font-medium my-10">Lỗi : {getErrorMessage(error)}</p>;
 
   return (
     <div className="bg-gray-50/50 min-h-screen pb-12 pt-6">
@@ -182,6 +174,6 @@ const OrderDetailsPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default OrderDetailsPage;

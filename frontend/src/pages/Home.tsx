@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { fetchBestSellerProducts, fetchMostLikedProducts } from "../redux/slices/productsSlice";
+import React from "react";
 import Hero from "../components/Layout/Hero";
 import GenderCollectionSection from "../components/Products/GenderCollectionSection";
 import NewArrivals from "../components/Products/NewArrivals";
@@ -8,18 +7,11 @@ import FeaturedCollection from "../components/Products/FeaturedCollection";
 import FeaturesSection from "../components/Products/FeaturesSection";
 import ZaloChatIcon from "../components/Common/ZaloChatIcon";
 import AIChat from "../components/AIChat";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useBestSellers } from "@/features/products";
+import { getErrorMessage } from "@/shared/utils/error-utils";
 
-const Home: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { mostLikedProducts, bestSellerProducts, loading, error } = useAppSelector(
-    (state) => state.products
-  );
-
-  useEffect(() => {
-    dispatch(fetchBestSellerProducts());
-    dispatch(fetchMostLikedProducts());
-  }, [dispatch]);
+export function Home() {
+  const { data: bestSellerProducts = [], isLoading: loading, error } = useBestSellers();
 
   return (
     <div className="bg-white">
@@ -45,7 +37,7 @@ const Home: React.FC = () => {
             Những thiết kế thịnh hành nhất, được khách hàng của Rabbit tin tưởng lựa chọn nhiều nhất.
           </p>
         </div>
-        <ProductGrid products={bestSellerProducts} loading={loading} error={error} />
+        <ProductGrid products={bestSellerProducts} loading={loading} error={error ? getErrorMessage(error) : null} />
       </div>
 
       {/* Featured Collection Lifestyle Banner */}
@@ -64,7 +56,7 @@ const Home: React.FC = () => {
             Nhận được đánh giá 5 sao tuyệt đối cùng lượt yêu thích cao kỷ lục từ cộng đồng yêu thời trang.
           </p>
         </div>
-        <ProductGrid products={mostLikedProducts} loading={loading} error={error} />
+        <ProductGrid products={bestSellerProducts} loading={loading} error={error ? getErrorMessage(error) : null} />
       </div>
 
       {/* Features Row */}
@@ -75,6 +67,6 @@ const Home: React.FC = () => {
       <ZaloChatIcon />
     </div>
   );
-};
+}
 
 export default Home;

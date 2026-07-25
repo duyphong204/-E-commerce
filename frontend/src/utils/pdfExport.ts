@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Order } from "../types/order";
+import { Order, OrderItem } from "../types";
 
 export const exportOrderToPDF = (order: Order): void => {
   const doc = new jsPDF();
@@ -90,8 +90,7 @@ export const exportOrderToPDF = (order: Order): void => {
   const address = addressParts.join(", ");
   doc.text(address, 15, 93);
 
-  // PRODUCTS TABLE
-  const tableData = order.orderItems.map((item, index) => [
+  const tableData = order.orderItems.map((item: OrderItem, index: number) => [
     index + 1,
     cleanText(item.name),
     item.size || "N/A",

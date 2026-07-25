@@ -2,19 +2,19 @@ import React from "react";
 import { IoMdClose } from "react-icons/io";
 import CartContent from "../Cart/CartContents";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../redux/store";
+import { useAuthStore } from "@/features/auth";
+import { useCart, useCartParams } from "@/features/cart";
 
 interface CartDrawerProps {
   drawerOpen: boolean;
   toggleCartDrawer: () => void;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ drawerOpen, toggleCartDrawer }) => {
+export function CartDrawer({ drawerOpen, toggleCartDrawer }: CartDrawerProps) {
   const navigate = useNavigate();
-  const { user, guestId } = useAppSelector((state) => state.auth);
-  const { cart } = useAppSelector((state) => state.cart);
-
-  const userId = user ? user._id : null;
+  const { user } = useAuthStore();
+  const cartParams = useCartParams();
+  const { data: cart } = useCart(cartParams);
 
   const handleCheckout = (): void => {
     toggleCartDrawer();
@@ -50,7 +50,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ drawerOpen, toggleCartDrawer })
         <div className="flex-grow p-4 overflow-y-auto">
           <h2 className="text-xl font-semibold mb-4">Giỏ hàng của bạn</h2>
           {cart && cart.products && cart.products.length > 0 ? (
-            <CartContent cart={cart} userId={userId} guestId={guestId} />
+            <CartContent cart={cart} userId={cartParams.userId || null} guestId={cartParams.guestId || ""} />
           ) : (
             <p className="text-gray-500 text-sm">Giỏ hàng của bạn trống.</p>
           )}
@@ -75,6 +75,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ drawerOpen, toggleCartDrawer })
       </div>
     </>
   );
-};
+}
 
 export default CartDrawer;
