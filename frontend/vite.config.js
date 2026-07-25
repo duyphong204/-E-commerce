@@ -26,7 +26,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-redux": ["react-redux", "@reduxjs/toolkit"],
           "vendor-charts": ["recharts"],
           "vendor-pdf": ["jspdf", "jspdf-autotable"],
           "vendor-ui": ["lucide-react", "react-icons", "swiper"],
