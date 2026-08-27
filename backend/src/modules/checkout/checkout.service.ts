@@ -28,8 +28,14 @@ export class CheckoutService {
       const stockErrors: string[] = [];
       const validItems: any[] = [];
 
-      for (const item of checkoutItems) {
-        const product = await this.checkoutRepository.findProductByIdWithSession(item.productId, session);
+      const products = await Promise.all(
+        checkoutItems.map((item: any) => this.checkoutRepository.findProductByIdWithSession(item.productId, session))
+      );
+
+      for (let i = 0; i < checkoutItems.length; i++) {
+        const item = checkoutItems[i];
+        const product = products[i];
+
         if (!product) {
           stockErrors.push(`Sản phẩm không tồn tại: ${item.productId}`);
           continue;
@@ -162,9 +168,16 @@ export class CheckoutService {
         throw new BadRequestException("Đơn chưa thanh toán hoặc đã hoàn tất");
       }
 
-      // Check stock
-      for (const item of checkout.checkoutItems) {
-        const product = await this.checkoutRepository.findProductByIdWithSession(item.productId.toString(), session);
+      // Check stock concurrently
+      const products = await Promise.all(
+        checkout.checkoutItems.map((item: any) =>
+          this.checkoutRepository.findProductByIdWithSession(item.productId.toString(), session)
+        )
+      );
+
+      for (let i = 0; i < checkout.checkoutItems.length; i++) {
+        const item = checkout.checkoutItems[i];
+        const product = products[i];
         if (!product || product.countInStock < item.quantity) {
           throw new BadRequestException(
             `Sản phẩm ${product?.name || item.productId} (size ${item.size}, màu ${item.color}) đã hết hàng`

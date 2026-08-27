@@ -5,7 +5,7 @@ export function getErrorMessage(error: unknown, defaultMessage = "Có lỗi xả
     const responseData = error.response?.data;
     if (responseData) {
       if (Array.isArray(responseData.errors) && responseData.errors.length > 0) {
-        return responseData.errors.map((err: any) => err.message).join(", ");
+        return responseData.errors.map((err: any) => typeof err === 'string' ? err : err.message || err.msg).filter(Boolean).join("\n");
       }
       return (
         responseData.message ||
